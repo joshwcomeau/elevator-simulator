@@ -10,8 +10,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "flow": "flow",
-    "prettier":
-      "prettier --single-quote --trailing-comma es5 --write \"src/**/*.js\""
+    "prettier": "prettier --single-quote --trailing-comma es5 --write \"src/**/*.js\""
   },
   "devDependencies": {
     "@storybook/react": "3.2.12",
@@ -21,6 +20,7 @@
     "flow-bin": "0.57.3",
     "react": "16.0.0",
     "react-dom": "16.0.0",
-    "react-scripts": "1.0.14"
+    "react-scripts": "1.0.14",
+    "styled-components": "2.2.1"
   }
 }

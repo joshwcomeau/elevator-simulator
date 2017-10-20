@@ -9,4 +9,6 @@ import Person from './Person';
 
 storiesOf('Person', module)
   .add('Pentagon', () => <Person shape="pentagon" />)
-  .add('Rectangle', () => <Person shape="rectangle" />);
+  .add('Rectangle', () => <Person shape="rectangle" />)
+  .add('Pentagon (walking)', () => <Person isWalking shape="pentagon" />)
+  .add('Rectangle (walking)', () => <Person isWalking shape="rectangle" />);

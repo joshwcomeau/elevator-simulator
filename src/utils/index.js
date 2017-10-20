@@ -1,6 +1,3 @@
-import isBefore from 'date-fns/is_before';
-import isAfter from 'date-fns/is_after';
-
 export const range = n =>
   Array(n)
     .fill()
