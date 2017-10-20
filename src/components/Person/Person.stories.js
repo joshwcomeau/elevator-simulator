@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 
 import { storiesOf } from '@storybook/react';
@@ -7,5 +8,5 @@ import { linkTo } from '@storybook/addon-links';
 import Person from './Person';
 
 storiesOf('Person', module)
-  .add('Default', () => <Person />)
-  .add('Walking', () => <Person />);
+  .add('Pentagon', () => <Person shape="pentagon" />)
+  .add('Rectangle', () => <Person shape="rectangle" />);
