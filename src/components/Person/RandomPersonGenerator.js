@@ -31,7 +31,7 @@ class RandomPersonGenerator extends Component<Props> {
     this.shape = this.props.shape || sample(PATH_KEYS);
     this.color = this.props.color || sample(COLORS);
     this.patience = this.props.patience || random(10, 100);
-    this.walkSpeed = this.props.walkSpeed || random(1, 20) / 10;
+    this.walkSpeed = this.props.walkSpeed || random(2, 10) / 10;
     this.size = this.props.size || random(25, 35);
   }
 

@@ -138,6 +138,7 @@ const Leg = styled.line`
   animation-name: ${props => (props.isWalking ? moveLeg : 'none')};
   animation-duration: ${STEP_DURATION}ms;
   animation-iteration-count: infinite;
+  will-change: transform;
 `;
 
 const LeftLeg = styled(Leg)`
@@ -154,6 +155,7 @@ const Body = styled.path`
   animation-name: ${props => (props.isWalking ? wobbleBody : 'none')};
   animation-duration: ${STEP_DURATION}ms;
   animation-iteration-count: infinite;
+  will-change: transform;
 `;
 
 export default Person;

@@ -5,7 +5,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 
-import { random } from '../../utils';
+import { random, range } from '../../utils';
 
 import Person, { RandomPersonGenerator } from './index';
 
@@ -36,7 +36,7 @@ class PersonMover extends Component<any, { x: number }> {
   };
 
   componentDidMount() {
-    this.timeoutId = window.setInterval(this.updatePosition, 1000);
+    this.timeoutId = window.setInterval(this.updatePosition, random(500, 1000));
   }
 
   componentWillUnmount() {
@@ -48,7 +48,13 @@ class PersonMover extends Component<any, { x: number }> {
   };
 
   render() {
-    return <Person destinationX={this.state.x} />;
+    return (
+      <RandomPersonGenerator>
+        {randomizedProps => (
+          <Person {...randomizedProps} destinationX={this.state.x} />
+        )}
+      </RandomPersonGenerator>
+    );
   }
 }
 
@@ -74,8 +80,6 @@ storiesOf('RandomPersonGenerator', module)
 
 storiesOf('PersonMover', module)
   .add('default', () => <PersonMover />)
-  .add('multiple people', () => [
-    <PersonMover key="1" />,
-    <PersonMover key="2" />,
-    <PersonMover key="3" />,
-  ]);
+  .add('3 people', () => range(3).map(i => <PersonMover key={i} />))
+  .add('10 people', () => range(10).map(i => <PersonMover key={i} />))
+  .add('30 people', () => range(30).map(i => <PersonMover key={i} />));
