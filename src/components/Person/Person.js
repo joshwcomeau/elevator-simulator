@@ -36,10 +36,18 @@ class Person extends PureComponent<Props, State> {
     isWalking: false,
   };
 
+  animationFrameId: number;
+
   componentDidUpdate(prevProps: Props) {
     if (prevProps.destinationX !== this.props.destinationX) {
+      window.cancelAnimationFrame(this.animationFrameId);
+
       this.moveTowardsDestinationX();
     }
+  }
+
+  componentWillUnmount() {
+    window.cancelAnimationFrame(this.animationFrameId);
   }
 
   moveTowardsDestinationX = () => {
@@ -65,7 +73,9 @@ class Person extends PureComponent<Props, State> {
         currentX: state.currentX + offsetAmount,
       }),
       () => {
-        window.requestAnimationFrame(this.moveTowardsDestinationX);
+        this.animationFrameId = window.requestAnimationFrame(
+          this.moveTowardsDestinationX
+        );
       }
     );
   };
