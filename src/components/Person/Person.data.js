@@ -17,4 +17,10 @@ export const PATHS = {
   `,
 };
 
-export const COLORS = [colors.orange[500]];
+export const COLORS = [
+  colors.red[500],
+  colors.orange[500],
+  colors.green[500],
+  colors.blue[500],
+  colors.purple[500],
+];
