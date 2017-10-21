@@ -1,14 +1,53 @@
 // @flow
-import React from 'react';
+import React, { Component } from 'react';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 
-import Person from './Person';
+import Person, { RandomPersonGenerator } from './index';
 
-storiesOf('Person', module)
-  .add('Pentagon', () => <Person shape="pentagon" />)
-  .add('Rectangle', () => <Person shape="rectangle" />)
-  .add('Pentagon (walking)', () => <Person isWalking shape="pentagon" />)
-  .add('Rectangle (walking)', () => <Person isWalking shape="rectangle" />);
+type Props = any;
+type State = {
+  isWalking: boolean,
+};
+
+class WalkingToggle extends Component<Props, State> {
+  state = {
+    isWalking: false,
+  };
+
+  render() {
+    const { isWalking } = this.state;
+
+    return (
+      <div>
+        <Person isWalking={isWalking} {...this.props} />
+        <br />
+        <button onClick={() => this.setState({ isWalking: !isWalking })}>
+          Toggle
+        </button>
+      </div>
+    );
+  }
+}
+
+const shapes = ['pentagon', 'rectangle'];
+
+shapes.forEach(shape => {
+  storiesOf(`Person (${shape})`, module)
+    .add('default', () => <Person shape={shape} />)
+    .add('walking toggle', () => <WalkingToggle shape={shape} />);
+});
+
+storiesOf('RandomPersonGenerator', module)
+  .add('default', () => (
+    <RandomPersonGenerator>
+      {randomizedProps => <Person {...randomizedProps} />}
+    </RandomPersonGenerator>
+  ))
+  .add('another', () => (
+    <RandomPersonGenerator>
+      {randomizedProps => <Person {...randomizedProps} />}
+    </RandomPersonGenerator>
+  ));
