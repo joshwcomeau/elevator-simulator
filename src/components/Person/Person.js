@@ -6,18 +6,18 @@ import { colors } from '../../constants';
 
 import { PATHS } from './Person.data';
 
-type Props = {
+export type Props = {
   color: string,
   shape: 'pentagon' | 'rectangle',
   patience: number,
   walkSpeed: number,
   destinationX: number,
   size: number,
-  isWalking: boolean,
 };
 
 type State = {
   currentX: number,
+  isWalking: boolean,
 };
 
 class Person extends PureComponent<Props, State> {
@@ -27,12 +27,13 @@ class Person extends PureComponent<Props, State> {
     color: colors.gray[500],
     shape: 'pentagon',
     patience: 50,
-    walkSpeed: 5,
+    walkSpeed: 1,
     isWalking: false,
   };
 
   state = {
     currentX: this.props.destinationX,
+    isWalking: false,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -45,16 +46,13 @@ class Person extends PureComponent<Props, State> {
     const { currentX } = this.state;
     const { destinationX, walkSpeed } = this.props;
 
-    if (currentX === destinationX) {
-      // Our walking is done! We've arrived at the destination.
-      return;
-    }
+    const distanceToDestination = Math.abs(currentX - destinationX);
 
     // If we're _almost_ at our destination (we'll get there in the next tick),
     // we can skip a bunch of stuff and just teleport there.
-    const distanceToDestination = Math.abs(currentX - destinationX);
-    if (distanceToDestination < walkSpeed) {
-      this.setState({ currentX: destinationX });
+    if (distanceToDestination <= walkSpeed) {
+      this.setState({ isWalking: false, currentX: destinationX });
+      return;
     }
 
     const direction = destinationX < currentX ? 'left' : 'right';
@@ -63,6 +61,7 @@ class Person extends PureComponent<Props, State> {
 
     this.setState(
       state => ({
+        isWalking: true,
         currentX: state.currentX + offsetAmount,
       }),
       () => {
@@ -72,8 +71,8 @@ class Person extends PureComponent<Props, State> {
   };
 
   render() {
-    const { size, color, shape, isWalking } = this.props;
-    const { currentX } = this.state;
+    const { size, color, shape } = this.props;
+    const { currentX, isWalking } = this.state;
 
     return (
       <svg
