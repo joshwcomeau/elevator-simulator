@@ -1,5 +1,6 @@
 // @flow
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 
 import { colors } from '../../constants';
@@ -13,6 +14,7 @@ export type Props = {
   walkSpeed: number,
   destinationX: number,
   size: number,
+  renderTo?: HTMLElement,
 };
 
 type State = {
@@ -32,11 +34,17 @@ class Person extends PureComponent<Props, State> {
   };
 
   state = {
-    currentX: this.props.destinationX,
+    currentX: 0,
     isWalking: false,
   };
 
   animationFrameId: number;
+
+  componentDidMount() {
+    if (this.props.destinationX !== this.state.currentX) {
+      this.moveTowardsDestinationX();
+    }
+  }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.destinationX !== this.props.destinationX) {
@@ -81,10 +89,10 @@ class Person extends PureComponent<Props, State> {
   };
 
   render() {
-    const { size, color, shape } = this.props;
+    const { size, color, shape, renderTo } = this.props;
     const { currentX, isWalking } = this.state;
 
-    return (
+    const personElement = (
       <svg
         viewBox="0 0 200 230"
         width={size}
@@ -96,6 +104,14 @@ class Person extends PureComponent<Props, State> {
         <Body isWalking={isWalking} color={color} d={PATHS[shape]} />
       </svg>
     );
+
+    // If we've specified a `renderTo`, open a portal to it.
+    // otherwise, just render into the tree.
+    if (renderTo) {
+      return ReactDOM.createPortal(personElement, renderTo);
+    }
+
+    return personElement;
   }
 }
 
