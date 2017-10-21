@@ -11,11 +11,16 @@ type Props = {
   shape: 'pentagon' | 'rectangle',
   patience: number,
   walkSpeed: number,
+  destinationX: number,
   size: number,
   isWalking: boolean,
 };
 
-class Person extends PureComponent<Props> {
+type State = {
+  currentX: number,
+};
+
+class Person extends PureComponent<Props, State> {
   static defaultProps = {
     destinationX: 0,
     size: 30,
@@ -26,11 +31,57 @@ class Person extends PureComponent<Props> {
     isWalking: false,
   };
 
+  state = {
+    currentX: this.props.destinationX,
+  };
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.destinationX !== this.props.destinationX) {
+      this.moveTowardsDestinationX();
+    }
+  }
+
+  moveTowardsDestinationX = () => {
+    const { currentX } = this.state;
+    const { destinationX, walkSpeed } = this.props;
+
+    if (currentX === destinationX) {
+      // Our walking is done! We've arrived at the destination.
+      return;
+    }
+
+    // If we're _almost_ at our destination (we'll get there in the next tick),
+    // we can skip a bunch of stuff and just teleport there.
+    const distanceToDestination = Math.abs(currentX - destinationX);
+    if (distanceToDestination < walkSpeed) {
+      this.setState({ currentX: destinationX });
+    }
+
+    const direction = destinationX < currentX ? 'left' : 'right';
+
+    const offsetAmount = direction === 'right' ? walkSpeed : -walkSpeed;
+
+    this.setState(
+      state => ({
+        currentX: state.currentX + offsetAmount,
+      }),
+      () => {
+        window.requestAnimationFrame(this.moveTowardsDestinationX);
+      }
+    );
+  };
+
   render() {
     const { size, color, shape, isWalking } = this.props;
+    const { currentX } = this.state;
 
     return (
-      <svg viewBox="0 0 200 230" width={size} height={size}>
+      <svg
+        viewBox="0 0 200 230"
+        width={size}
+        height={size}
+        style={{ transform: `translateX(${currentX}px)` }}
+      >
         <LeftLeg isWalking={isWalking} x1={80} y1={195} x2={80} y2={230} />
         <RightLeg isWalking={isWalking} x1={120} y1={195} x2={120} y2={230} />
         <Body isWalking={isWalking} color={color} d={PATHS[shape]} />

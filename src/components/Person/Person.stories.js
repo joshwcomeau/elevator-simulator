@@ -5,14 +5,11 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 
+import { random } from '../../utils';
+
 import Person, { RandomPersonGenerator } from './index';
 
-type Props = any;
-type State = {
-  isWalking: boolean,
-};
-
-class WalkingToggle extends Component<Props, State> {
+class WalkingToggle extends Component<any, { isWalking: boolean }> {
   state = {
     isWalking: false,
   };
@@ -29,6 +26,29 @@ class WalkingToggle extends Component<Props, State> {
         </button>
       </div>
     );
+  }
+}
+
+class PersonMover extends Component<any, { x: number }> {
+  timeoutId: number;
+  state = {
+    x: 0,
+  };
+
+  componentDidMount() {
+    this.timeoutId = window.setInterval(this.updatePosition, 1000);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this.timeoutId);
+  }
+
+  updatePosition = () => {
+    this.setState({ x: random(0, 200) });
+  };
+
+  render() {
+    return <Person destinationX={this.state.x} />;
   }
 }
 
@@ -51,3 +71,11 @@ storiesOf('RandomPersonGenerator', module)
       {randomizedProps => <Person {...randomizedProps} />}
     </RandomPersonGenerator>
   ));
+
+storiesOf('PersonMover', module)
+  .add('default', () => <PersonMover />)
+  .add('multiple people', () => [
+    <PersonMover key="1" />,
+    <PersonMover key="2" />,
+    <PersonMover key="3" />,
+  ]);
