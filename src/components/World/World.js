@@ -2,7 +2,10 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
-import Person from '../Person';
+import { range } from '../../utils';
+
+import Person, { RandomPersonGenerator } from '../Person';
+import Elevator from '../Elevator';
 
 type PersonData = any;
 
@@ -26,7 +29,8 @@ class World extends PureComponent<Props, State> {
     numElevators: 1,
   };
 
-  floorRefs = [];
+  floorRefs: Array<HTMLElement> = [];
+  elevatorRefs: Array<HTMLElement> = [];
 
   state = {
     people: [],
@@ -50,14 +54,42 @@ class World extends PureComponent<Props, State> {
   };
 
   render() {
+    const { numFloors, numElevators } = this.props;
+
     return (
       <WorldElem>
-        <Floor innerRef={elem => (this.floorRefs[0] = elem)} />
-        <Floor innerRef={elem => (this.floorRefs[1] = elem)} />
-        <Floor innerRef={elem => (this.floorRefs[2] = elem)} />
+        <Floors>
+          {range(numFloors).map(i => (
+            <Floor
+              key={i}
+              innerRef={elem => {
+                this.floorRefs[i] = elem;
+              }}
+            />
+          ))}
+        </Floors>
+
+        <Elevators>
+          {range(numElevators).map(i => (
+            <Elevator
+              key={i}
+              innerRef={elem => {
+                this.elevatorRefs[i] = elem;
+              }}
+            />
+          ))}
+        </Elevators>
 
         {this.state.people.map(person => (
-          <Person renderTo={this.floorRefs[0]} destinationX={200} />
+          <RandomPersonGenerator>
+            {randomizedProps => (
+              <Person
+                {...randomizedProps}
+                renderTo={this.floorRefs[0]}
+                destinationX={200}
+              />
+            )}
+          </RandomPersonGenerator>
         ))}
       </WorldElem>
     );
@@ -65,7 +97,24 @@ class World extends PureComponent<Props, State> {
 }
 
 const WorldElem = styled.div`
-  width: 250px;
+  position: relative;
+  width: 500px;
+`;
+
+const Floors = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+`;
+
+const Elevators = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const Floor = styled.div`
