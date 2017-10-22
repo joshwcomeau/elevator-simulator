@@ -95,7 +95,7 @@ class World extends PureComponent<Props, State> {
         </Elevators>
 
         {this.state.people.map(person => (
-          <RandomPersonGenerator>
+          <RandomPersonGenerator key={person.id}>
             {randomizedProps => (
               <Person
                 {...randomizedProps}

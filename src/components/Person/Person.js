@@ -7,9 +7,11 @@ import { colors } from '../../constants';
 
 import { PATHS } from './Person.data';
 
+import type { Shape } from './Person.types';
+
 export type Props = {
   color: string,
-  shape: 'pentagon' | 'rectangle',
+  shape: Shape,
   patience: number,
   walkSpeed: number,
   destinationX: number,

@@ -1,6 +1,10 @@
 // @flow
 import { colors } from '../../constants';
 
+import type { Shape } from './Person.types';
+
+export const SHAPES: Array<Shape> = ['rectangle', 'pentagon'];
+
 export const PATHS = {
   pentagon: `
     M 100 43.48

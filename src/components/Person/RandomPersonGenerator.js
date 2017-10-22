@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 import { colors } from '../../constants';
 import { sample, random } from '../../utils';
 
-import { PATHS, COLORS } from './Person.data';
+import Person from './Person';
+import { SHAPES, PATHS, COLORS } from './Person.data';
 
 import type { Props as PersonProps } from './Person';
 import type { Shape } from './Person.types';
@@ -25,14 +26,10 @@ class RandomPersonGenerator extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    // For all of our person's missing props, generate random values.
-    // Not bothering with state, since these are all constant values once
-    // generated.
-    this.shape = this.props.shape || sample(PATH_KEYS);
-    this.color = this.props.color || sample(COLORS);
-    this.patience = this.props.patience || random(10, 100);
-    this.walkSpeed = this.props.walkSpeed || random(2, 10) / 10;
     this.size = this.props.size || random(25, 35);
+    this.shape = this.props.shape || sample(SHAPES);
+    this.color = this.props.color || sample(COLORS);
+    this.walkSpeed = this.props.walkSpeed || random(1, 10) / 10;
   }
 
   render() {
