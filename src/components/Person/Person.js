@@ -16,7 +16,12 @@ export type Props = {
   walkSpeed: number,
   destinationX: number,
   size: number,
-  renderTo?: HTMLElement,
+  renderTo: {
+    ref: HTMLElement,
+    index: number,
+    type: 'floor' | 'elevator',
+  },
+  destinationFloor: number,
 };
 
 type State = {
@@ -110,7 +115,7 @@ class Person extends PureComponent<Props, State> {
     // If we've specified a `renderTo`, open a portal to it.
     // otherwise, just render into the tree.
     if (renderTo) {
-      return ReactDOM.createPortal(personElement, renderTo);
+      return ReactDOM.createPortal(personElement, renderTo.ref);
     }
 
     return personElement;

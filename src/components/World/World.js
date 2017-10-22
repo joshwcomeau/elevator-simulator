@@ -2,14 +2,25 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
-import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
-import { range } from '../../utils';
+import { ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT } from '../../constants';
+import { random, range } from '../../utils';
 
 import Person, { RandomPersonGenerator } from '../Person';
 import Elevator from '../Elevator';
 import ElevatorButtons from '../ElevatorButtons';
 
-type PersonData = any;
+type PersonData = {
+  id: string,
+  locationType: 'floor' | 'elevator',
+  locationIndex: number,
+  destinationFloor: number,
+};
+
+type ElevatorRequest = {
+  floor: number,
+  direction: 'up' | 'down',
+  requestedAt: Date,
+};
 
 type Props = {
   numFloors: number,
@@ -18,6 +29,7 @@ type Props = {
 
 type State = {
   people: Array<PersonData>,
+  elevatorRequests: Array<ElevatorRequest>,
 };
 
 type DefaultProps = {
@@ -35,8 +47,11 @@ class World extends PureComponent<Props, State> {
   elevatorRefs: Array<HTMLElement> = [];
   buttonRefs: Array<HTMLElement> = [];
 
+  peopleGeneratorId: number;
+
   state = {
     people: [],
+    elevatorRequests: [],
   };
 
   componentDidMount() {
@@ -45,17 +60,59 @@ class World extends PureComponent<Props, State> {
     this.generatePeoplePeriodically();
   }
 
+  componentWillUnmount() {
+    window.clearTimeout(this.peopleGeneratorId);
+  }
+
   generatePeoplePeriodically = () => {
     this.setState(state => ({
       people: [
         ...state.people,
         {
           id: 'a',
-          floor: 0,
+          locationType: 'floor',
+          locationIndex: 0,
           destinationFloor: 2,
         },
       ],
     }));
+
+    this.peopleGeneratorId = window.setTimeout(
+      this.generatePeoplePeriodically,
+      random(10000, 20000)
+    );
+  };
+
+  callElevator = (originFloor: number, direction: 'up' | 'down') => {
+    this.setState(state => ({
+      elevatorRequests: [
+        ...state.elevatorRequests,
+        {
+          floor: originFloor,
+          direction,
+          requestedAt: new Date(),
+        },
+      ],
+    }));
+  };
+
+  renderPerson = (person: any) => {
+    return (
+      <RandomPersonGenerator key={person.id}>
+        {randomizedProps => (
+          <Person
+            {...randomizedProps}
+            renderTo={{
+              ref: this.floorRefs[person.locationIndex],
+              index: person.locationIndex,
+              type: 'floor',
+            }}
+            handleElevatorButtonPush={this.callElevator}
+            destinationX={200}
+          />
+        )}
+      </RandomPersonGenerator>
+    );
   };
 
   render() {
@@ -94,17 +151,7 @@ class World extends PureComponent<Props, State> {
           ))}
         </Elevators>
 
-        {this.state.people.map(person => (
-          <RandomPersonGenerator key={person.id}>
-            {randomizedProps => (
-              <Person
-                {...randomizedProps}
-                renderTo={this.floorRefs[0]}
-                destinationX={200}
-              />
-            )}
-          </RandomPersonGenerator>
-        ))}
+        {this.state.people.map(this.renderPerson)}
       </WorldElem>
     );
   }
@@ -135,7 +182,7 @@ const Floor = styled.div`
   position: relative;
   display: flex;
   align-items: flex-end;
-  height: 60px;
+  height: ${FLOOR_HEIGHT}px;
   border-bottom: 1px solid #333;
 `;
 

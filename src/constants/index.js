@@ -45,3 +45,4 @@ export const colors = {
 };
 
 export const ELEVATOR_SHAFT_WIDTH = 60;
+export const FLOOR_HEIGHT = 60;

@@ -31,7 +31,7 @@ const ElevatorButtons = ({
   </ElevatorButtonsWrapper>
 );
 
-const BUTTON_SIZE = 10;
+const BUTTON_SIZE = 8;
 const BUTTON_PADDING = 6;
 
 const ElevatorButtonsWrapper = styled.div`
@@ -42,6 +42,7 @@ const ElevatorButtonsWrapper = styled.div`
   margin: auto;
   display: flex;
   justify-content: center;
+  align-items: center;
 `;
 
 const ElevatorButtonsPlate = styled.div`
@@ -49,15 +50,22 @@ const ElevatorButtonsPlate = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.35);
   background: rgba(0, 0, 0, 0.2);
-  padding: 4px 8px;
+  padding: 4px;
+  height: 20px;
 `;
 
 const ElevatorButton = styled.button`
   width: ${BUTTON_SIZE}px;
   height: ${BUTTON_SIZE}px;
+  padding: 0;
   background: ${props => (props.litUp ? colors.green[500] : colors.gray[100])};
+  border: none;
+  border-radius: 50%;
+
+  &:nth-of-type(2) {
+    margin-top: 2px;
+  }
 `;
 
 export default ElevatorButtons;
