@@ -43,3 +43,5 @@ export const colors = {
     900: '#212121',
   },
 };
+
+export const ELEVATOR_SHAFT_WIDTH = 60;

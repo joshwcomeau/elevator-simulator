@@ -2,10 +2,12 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
+import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { range } from '../../utils';
 
 import Person, { RandomPersonGenerator } from '../Person';
 import Elevator from '../Elevator';
+import ElevatorButtons from '../ElevatorButtons';
 
 type PersonData = any;
 
@@ -31,12 +33,15 @@ class World extends PureComponent<Props, State> {
 
   floorRefs: Array<HTMLElement> = [];
   elevatorRefs: Array<HTMLElement> = [];
+  buttonRefs: Array<HTMLElement> = [];
 
   state = {
     people: [],
   };
 
   componentDidMount() {
+    // We've rendered a buncha floors and elevators, and captured their refs.
+    // We need to know the X offset for each elevator shaft,
     this.generatePeoplePeriodically();
   }
 
@@ -65,7 +70,16 @@ class World extends PureComponent<Props, State> {
               innerRef={elem => {
                 this.floorRefs[i] = elem;
               }}
-            />
+            >
+              <ElevatorButtons
+                innerRef={elem => (this.buttonRefs[i] = elem)}
+                isBottomFloor={i === 0}
+                isTopFloor={i === numFloors - 1}
+                hasRequestedUp={i === 0}
+                hasRequestedDown={i === 2}
+                offset={numElevators * ELEVATOR_SHAFT_WIDTH + 15}
+              />
+            </Floor>
           ))}
         </Floors>
 
