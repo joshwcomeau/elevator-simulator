@@ -2,12 +2,13 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
-import { ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT } from '../../constants';
+import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { random, range } from '../../utils';
 
-import Person, { RandomPersonGenerator } from '../Person';
 import Elevator from '../Elevator';
 import ElevatorButtons from '../ElevatorButtons';
+import Floor from '../Floor';
+import Person, { RandomPersonGenerator } from '../Person';
 
 type PersonData = {
   id: string,
@@ -16,10 +17,12 @@ type PersonData = {
   destinationFloor: number,
 };
 
-type ElevatorRequest = {
-  floor: number,
-  direction: 'up' | 'down',
-  requestedAt: Date,
+type ElevatorRequests = {
+  [direction: 'up' | 'down']: {
+    [floorIndex: number]: {
+      requestedAt: Date,
+    },
+  },
 };
 
 type Props = {
@@ -29,16 +32,11 @@ type Props = {
 
 type State = {
   people: Array<PersonData>,
-  elevatorRequests: Array<ElevatorRequest>,
-};
-
-type DefaultProps = {
-  numFloors: number,
-  numElevators: number,
+  elevatorRequests: ElevatorRequests,
 };
 
 class World extends PureComponent<Props, State> {
-  static defaultProps: DefaultProps = {
+  static defaultProps = {
     numFloors: 4,
     numElevators: 1,
   };
@@ -51,7 +49,7 @@ class World extends PureComponent<Props, State> {
 
   state = {
     people: [],
-    elevatorRequests: [],
+    elevatorRequests: {},
   };
 
   componentDidMount() {
@@ -84,15 +82,17 @@ class World extends PureComponent<Props, State> {
   };
 
   callElevator = (originFloor: number, direction: 'up' | 'down') => {
+    //
     this.setState(state => ({
-      elevatorRequests: [
+      elevatorRequests: {
         ...state.elevatorRequests,
-        {
-          floor: originFloor,
-          direction,
-          requestedAt: new Date(),
+        [direction]: {
+          ...state.elevatorRequests[direction],
+          [originFloor]: {
+            requestedAt: new Date(),
+          },
         },
-      ],
+      },
     }));
   };
 
@@ -108,7 +108,6 @@ class World extends PureComponent<Props, State> {
               type: 'floor',
             }}
             handleElevatorButtonPush={this.callElevator}
-            destinationX={200}
           />
         )}
       </RandomPersonGenerator>
@@ -176,14 +175,6 @@ const Elevators = styled.div`
   bottom: 0;
   display: flex;
   justify-content: flex-end;
-`;
-
-const Floor = styled.div`
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  height: ${FLOOR_HEIGHT}px;
-  border-bottom: 1px solid #333;
 `;
 
 export default World;
