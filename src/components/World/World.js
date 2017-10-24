@@ -1,7 +1,9 @@
 // @flow
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import { initializeBuilding } from '../../actions';
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { random, range } from '../../utils';
 
@@ -9,6 +11,10 @@ import Elevator from '../Elevator';
 import ElevatorButtons from '../ElevatorButtons';
 import Floor from '../Floor';
 import Person, { RandomPersonGenerator } from '../Person';
+
+import type { ActionCreator } from '../../types';
+import type { ElevatorsState } from '../../reducers/elevators.reducer';
+import type { FloorsState } from '../../reducers/floors.reducer';
 
 type PersonData = {
   id: string,
@@ -28,6 +34,9 @@ type ElevatorRequests = {
 type Props = {
   numFloors: number,
   numElevators: number,
+  floors: FloorsState,
+  elevators: ElevatorsState,
+  initializeBuilding: ActionCreator,
 };
 
 type State = {
@@ -53,9 +62,13 @@ class World extends PureComponent<Props, State> {
   };
 
   componentDidMount() {
+    const { numFloors, numElevators, initializeBuilding } = this.props;
+
+    initializeBuilding({ numFloors, numElevators });
+
     // We've rendered a buncha floors and elevators, and captured their refs.
     // We need to know the X offset for each elevator shaft,
-    this.generatePeoplePeriodically();
+    window.setTimeout(this.generatePeoplePeriodically, 500);
   }
 
   componentWillUnmount() {
@@ -97,6 +110,7 @@ class World extends PureComponent<Props, State> {
   };
 
   renderPerson = (person: any) => {
+    console.log('Rendering person to', this.floorRefs);
     return (
       <RandomPersonGenerator key={person.id}>
         {randomizedProps => (
@@ -115,36 +129,39 @@ class World extends PureComponent<Props, State> {
   };
 
   render() {
-    const { numFloors, numElevators } = this.props;
+    const { floors, elevators } = this.props;
+
+    console.log(floors, elevators, this.floorRefs);
 
     return (
       <WorldElem>
         <Floors>
-          {range(numFloors).map(i => (
+          {floors.map(floor => (
             <Floor
-              key={i}
+              key={floor.id}
               innerRef={elem => {
-                this.floorRefs[i] = elem;
+                console.log('Capturing floor ref', elem);
+                this.floorRefs[floor.id] = elem;
               }}
             >
               <ElevatorButtons
-                innerRef={elem => (this.buttonRefs[i] = elem)}
-                isBottomFloor={i === 0}
-                isTopFloor={i === numFloors - 1}
-                hasRequestedUp={i === 0}
-                hasRequestedDown={i === 2}
-                offset={numElevators * ELEVATOR_SHAFT_WIDTH + 15}
+                innerRef={elem => (this.buttonRefs[floor.id] = elem)}
+                isBottomFloor={floor.id === 0}
+                isTopFloor={floor.id === floors.length - 1}
+                hasRequestedUp={floor.id === 0}
+                hasRequestedDown={floor.id === 2}
+                offset={elevators.length * ELEVATOR_SHAFT_WIDTH + 15}
               />
             </Floor>
           ))}
         </Floors>
 
         <Elevators>
-          {range(numElevators).map(i => (
+          {elevators.map(elevator => (
             <Elevator
-              key={i}
+              key={elevator.id}
               innerRef={elem => {
-                this.elevatorRefs[i] = elem;
+                this.elevatorRefs[elevator.id] = elem;
               }}
             />
           ))}
@@ -177,4 +194,11 @@ const Elevators = styled.div`
   justify-content: flex-end;
 `;
 
-export default World;
+const mapStateToProps = state => ({
+  floors: state.floors,
+  elevators: state.elevators,
+});
+
+const mapDispatchToProps = { initializeBuilding };
+
+export default connect(mapStateToProps, mapDispatchToProps)(World);
