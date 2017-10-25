@@ -12,6 +12,7 @@ export default function reducer(state: FloorsState = [], action: Action) {
     case INITIALIZE_BUILDING: {
       return range(action.numFloors).map(id => ({ id }));
     }
+
     default:
       return state;
   }

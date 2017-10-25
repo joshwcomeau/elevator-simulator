@@ -1,5 +1,5 @@
 // @flow
-import { INITIALIZE_BUILDING, ELEVATOR_ARRIVE_AT_FLOOR } from '../actions';
+import { INITIALIZE_BUILDING, ELEVATOR_ARRIVES_AT_FLOOR } from '../actions';
 import { range } from '../utils';
 
 import type { Action } from '../types';
@@ -37,6 +37,7 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
         currentFloorId: 0,
       }));
     }
+
     default:
       return state;
   }

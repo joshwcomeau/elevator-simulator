@@ -8,7 +8,6 @@ import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { random, range } from '../../utils';
 
 import Elevator from '../Elevator';
-import ElevatorButtons from '../ElevatorButtons';
 import Floor from '../Floor';
 import Person, { RandomPersonGenerator } from '../Person';
 
@@ -84,6 +83,7 @@ class World extends PureComponent<Props, State> {
           locationType: 'floor',
           locationIndex: 0,
           destinationFloor: 2,
+          destinationX: 200,
         },
       ],
     }));
@@ -110,11 +110,11 @@ class World extends PureComponent<Props, State> {
   };
 
   renderPerson = (person: any) => {
-    console.log('Rendering person to', this.floorRefs);
     return (
       <RandomPersonGenerator key={person.id}>
         {randomizedProps => (
           <Person
+            {...person}
             {...randomizedProps}
             renderTo={{
               ref: this.floorRefs[person.locationIndex],
@@ -139,20 +139,12 @@ class World extends PureComponent<Props, State> {
           {floors.map(floor => (
             <Floor
               key={floor.id}
-              innerRef={elem => {
-                console.log('Capturing floor ref', elem);
-                this.floorRefs[floor.id] = elem;
-              }}
-            >
-              <ElevatorButtons
-                innerRef={elem => (this.buttonRefs[floor.id] = elem)}
-                isBottomFloor={floor.id === 0}
-                isTopFloor={floor.id === floors.length - 1}
-                hasRequestedUp={floor.id === 0}
-                hasRequestedDown={floor.id === 2}
-                offset={elevators.length * ELEVATOR_SHAFT_WIDTH + 15}
-              />
-            </Floor>
+              id={floor.id}
+              numElevators={elevators.length}
+              floorRefCapturer={elem => (this.floorRefs[floor.id] = elem)}
+              elevatorButtonsRefCapturer={elem =>
+                (this.buttonRefs[floor.id] = elem)}
+            />
           ))}
         </Floors>
 

@@ -100,7 +100,7 @@ class Person extends PureComponent<Props, State> {
     const { currentX, isWalking } = this.state;
 
     const personElement = (
-      <svg
+      <PersonSVG
         viewBox="0 0 200 230"
         width={size}
         height={size}
@@ -109,7 +109,7 @@ class Person extends PureComponent<Props, State> {
         <LeftLeg isWalking={isWalking} x1={80} y1={195} x2={80} y2={230} />
         <RightLeg isWalking={isWalking} x1={120} y1={195} x2={120} y2={230} />
         <Body isWalking={isWalking} color={color} d={PATHS[shape]} />
-      </svg>
+      </PersonSVG>
     );
 
     // If we've specified a `renderTo`, open a portal to it.
@@ -154,6 +154,16 @@ const moveLeg = keyframes`
 `;
 
 const STEP_DURATION = 500;
+
+const PersonSVG = styled.svg`
+  /*
+    Initialize all people in the bottom left corner of their parent container.
+    They'll be moved around with transform: translate.
+  */
+  position: absolute;
+  left: 0;
+  bottom: 0;
+`;
 
 const Leg = styled.line`
   stroke: ${colors.gray[700]};

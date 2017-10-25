@@ -91,3 +91,22 @@ take(ELEVATOR_ARRIVE_AT_FLOOR, action => {
 
 })
 ```
+
+The process for a single person is actually quite convoluted:
+- Person is generated at ground floor
+- Person walks to the elevator request button
+- Person requests elevator, if it isn't already requested, for their direction
+- Person waits
+- Elevator arrives
+- Elevator doors open
+- Other people get out of the elevator
+- Person gets in elevator
+- Elevator doors close
+- Person requests their floor
+- Elevator makes 0-n stops before the Person's floor
+- Elevator arrives at Person's floor
+- Elevator doors open
+- Person leaves elevator
+- Person walks a bit and fades away.
+
+Some of these are directly tied to Redux actions, and others are derivations of the current state (state => UI and all that)

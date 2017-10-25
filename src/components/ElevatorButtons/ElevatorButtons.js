@@ -1,29 +1,30 @@
 // @flow
 import React from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { colors } from '../../constants';
+import { getElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
 
 import type { RefCapturer } from '../../types';
 
 type Props = {
-  innerRef: RefCapturer,
+  floorId: number,
   isBottomFloor: boolean,
   isTopFloor: boolean,
   hasRequestedUp: boolean,
   hasRequestedDown: boolean,
-  offset: number,
+  refCapturer: RefCapturer,
 };
 
 const ElevatorButtons = ({
-  innerRef,
   isBottomFloor,
   isTopFloor,
   hasRequestedUp,
   hasRequestedDown,
-  offset,
+  refCapturer,
 }: Props) => (
-  <ElevatorButtonsWrapper offset={offset} innerRef={innerRef}>
+  <ElevatorButtonsWrapper innerRef={refCapturer}>
     <ElevatorButtonsPlate>
       {!isTopFloor && <ElevatorButton litUp={hasRequestedUp} />}
       {!isBottomFloor && <ElevatorButton litUp={hasRequestedDown} />}
@@ -35,14 +36,10 @@ const BUTTON_SIZE = 8;
 const BUTTON_PADDING = 6;
 
 const ElevatorButtonsWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  right: ${props => props.offset}px;
-  bottom: 0;
-  margin: auto;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 45px;
 `;
 
 const ElevatorButtonsPlate = styled.div`
@@ -68,4 +65,30 @@ const ElevatorButton = styled.button`
   }
 `;
 
-export default ElevatorButtons;
+const mapStateToProps = (state, { id }) => {
+  const { floors, elevatorRequests } = state;
+
+  const floor = floors[id];
+
+  const requestsForThisFloor = getElevatorRequestsByFloor(id, state);
+
+  const isBottomFloor = id === 0;
+  const isTopFloor = id === floors.length - 1;
+
+  const hasRequestedUp = requestsForThisFloor.includes(
+    request => request.direction === 'up'
+  );
+
+  const hasRequestedDown = requestsForThisFloor.includes(
+    request => request.direction === 'down'
+  );
+
+  return {
+    isBottomFloor,
+    isTopFloor,
+    hasRequestedUp,
+    hasRequestedDown,
+  };
+};
+
+export default connect(mapStateToProps)(ElevatorButtons);
