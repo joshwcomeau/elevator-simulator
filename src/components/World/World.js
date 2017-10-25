@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { initializeBuilding } from '../../actions';
+import { initializeBuilding, generateRandomPerson } from '../../actions';
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { random, range } from '../../utils';
 
@@ -36,6 +36,7 @@ type Props = {
   floors: FloorsState,
   elevators: ElevatorsState,
   initializeBuilding: ActionCreator,
+  generateRandomPerson: ActionCreator,
 };
 
 type State = {
@@ -61,13 +62,18 @@ class World extends PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    const { numFloors, numElevators, initializeBuilding } = this.props;
+    const {
+      numFloors,
+      numElevators,
+      initializeBuilding,
+      generateRandomPerson,
+    } = this.props;
 
     initializeBuilding({ numFloors, numElevators });
 
     // We've rendered a buncha floors and elevators, and captured their refs.
     // We need to know the X offset for each elevator shaft,
-    window.setTimeout(this.generatePeoplePeriodically, 500);
+    window.requestAnimationFrame(generateRandomPerson);
   }
 
   componentWillUnmount() {
@@ -75,23 +81,22 @@ class World extends PureComponent<Props, State> {
   }
 
   generatePeoplePeriodically = () => {
-    this.setState(state => ({
-      people: [
-        ...state.people,
-        {
-          id: 'a',
-          locationType: 'floor',
-          locationIndex: 0,
-          destinationFloor: 2,
-          destinationX: 200,
-        },
-      ],
-    }));
-
-    this.peopleGeneratorId = window.setTimeout(
-      this.generatePeoplePeriodically,
-      random(10000, 20000)
-    );
+    // this.setState(state => ({
+    //   people: [
+    //     ...state.people,
+    //     {
+    //       id: 'a',
+    //       locationType: 'floor',
+    //       locationIndex: 0,
+    //       destinationFloor: 2,
+    //       destinationX: 200,
+    //     },
+    //   ],
+    // }));
+    // this.peopleGeneratorId = window.setTimeout(
+    //   this.generatePeoplePeriodically,
+    //   random(10000, 20000)
+    // );
   };
 
   callElevator = (originFloor: number, direction: 'up' | 'down') => {
@@ -110,6 +115,43 @@ class World extends PureComponent<Props, State> {
   };
 
   renderPerson = (person: any) => {
+    let destinationX;
+    switch (person.status) {
+      case 'initialized': {
+        // In this case, we just need to give them the destination of the
+        // elevator button. Once they get there, they'll handle pushing the
+        // button
+        const elevatorButton = this.buttonRefs[person.floorIndex];
+
+        destinationX = elevatorButton.getBoundingClientRect().left;
+      }
+      case 'waiting-for-elevator': {
+        // Right after pushing the button, this is their state.
+        // Shuffle around a bit.
+        destinationX = random(-20, 10);
+      }
+
+      case 'boarding-elevator': {
+        // The elevator has arrived, and its doors are open.
+        // Move our fellow towards the elevator.
+        const elevator = this.elevatorRefs[person.elevatorIndex];
+
+        destinationX = elevator.getBoundingClientRect().left;
+      }
+
+      case 'exiting-elevator': {
+      }
+    }
+
+    // <PersonMover
+    //   renderTo={{
+    //     ref: this.floorRefs[person.locationIndex],
+    //     index: person.locationIndex,
+    //     type: 'floor',
+    //   }}
+    //   moveTowards={{
+
+    //   }}
     return (
       <RandomPersonGenerator key={person.id}>
         {randomizedProps => (
@@ -191,6 +233,6 @@ const mapStateToProps = state => ({
   elevators: state.elevators,
 });
 
-const mapDispatchToProps = { initializeBuilding };
+const mapDispatchToProps = { initializeBuilding, generateRandomPerson };
 
 export default connect(mapStateToProps, mapDispatchToProps)(World);

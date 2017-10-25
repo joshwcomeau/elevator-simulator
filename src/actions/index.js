@@ -1,5 +1,6 @@
 // @flow
-import { random } from '../utils';
+import { getRandomPersonAttrbutes } from '../components/Person/Person.helpers';
+
 import type { Direction } from '../types';
 
 //
@@ -8,7 +9,7 @@ export const INITIALIZE_BUILDING = 'INITIALIZE_BUILDING';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const REQUEST_ELEVATOR = 'REQUEST_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
-export const NEW_PERSON_ARRIVES_AT_BUILDING = 'NEW_PERSON_ARRIVES_AT_BUILDING';
+export const GENERATE_PERSON = 'GENERATE_PERSON';
 export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
 //
@@ -65,4 +66,35 @@ export const elevatorArrivesAtFloor = ({
   type: ELEVATOR_ARRIVES_AT_FLOOR,
   elevatorId,
   floorId,
+});
+
+export const generatePerson = ({
+  floorId,
+  shape,
+  size,
+  color,
+  patience,
+  walkSpeed,
+}: {
+  floorId: number,
+  shape: Shape,
+  size: number,
+  color: string,
+  patience: number,
+  walkSpeed: number,
+}) => ({
+  type: GENERATE_PERSON,
+  floorId,
+  shape,
+  size,
+  color,
+  patience,
+  walkSpeed,
+});
+
+// NOTE: This action-creator is impure, generates random values.
+export const generateRandomPerson = ({ floorId }: { floorId: number }) => ({
+  type: GENERATE_PERSON,
+  floorId,
+  ...getRandomPersonAttrbutes(),
 });

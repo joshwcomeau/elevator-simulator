@@ -110,3 +110,20 @@ The process for a single person is actually quite convoluted:
 - Person walks a bit and fades away.
 
 Some of these are directly tied to Redux actions, and others are derivations of the current state (state => UI and all that)
+
+A person is generated with a floorId (0 in most cases, unless I wanna invent negative parking levels?). Their first job is to go push the elevator button.
+
+They spawn with a desired floorId, so the elevator direction is derivable.
+
+Currently, Person has a `destinationX` prop, which controls the offset amount. Maybe this should be derived, though.
+
+The Person starts at 0 x-offset. We can pass in the elevator buttons ref, and figure out how far they have to walk before triggering their callback.
+
+Persons will have the following callback:
+- onRequestElevator
+- onBoardElevator
+- onArriveAtDestinationFloor
+
+My current thinking is that Person callbacks are fired whenever the person finishes moving... when they arrive at the buttons, they fire `requestElevator`. When the elevator door opens and they line themselves up with the door, they fire `boardElevator`. When the elevator arrives at their floor, they walk a few steps and fade away (or w/e), and fire `arrive`.
+
+The START of their movement is handled by external events. When the elevator fires `ELEVATOR_ARRIVES_AT_FLOOR` for the floor a Person is waiting on, going in a direction they can use, that action updates their reducer state, which causes the person's `destinationX` to change, and so they start moving.
