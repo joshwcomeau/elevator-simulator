@@ -1,11 +1,11 @@
 // @flow
 import React, { Component } from 'react';
 
-import { colors } from '../../constants';
+import { COLORS } from '../../constants';
 import { sample, random } from '../../utils';
 
 import Person from './Person';
-import { SHAPES, PATHS, COLORS } from './Person.data';
+import { SHAPES, PATHS, BODY_COLORS } from './Person.data';
 
 import type { Props as PersonProps } from './Person';
 import type { Shape } from './Person.types';
@@ -28,7 +28,7 @@ class RandomPersonGenerator extends Component<Props> {
 
     this.size = this.props.size || random(25, 35);
     this.shape = this.props.shape || sample(SHAPES);
-    this.color = this.props.color || sample(COLORS);
+    this.color = this.props.color || sample(BODY_COLORS);
     this.walkSpeed = this.props.walkSpeed || random(1, 10) / 10;
   }
 

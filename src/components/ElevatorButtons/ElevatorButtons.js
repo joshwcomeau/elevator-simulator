@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { colors } from '../../constants';
+import { COLORS } from '../../constants';
 import { getElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
 
 import type { RefCapturer } from '../../types';
@@ -56,7 +56,7 @@ const ElevatorButton = styled.button`
   width: ${BUTTON_SIZE}px;
   height: ${BUTTON_SIZE}px;
   padding: 0;
-  background: ${props => (props.litUp ? colors.green[500] : colors.gray[100])};
+  background: ${props => (props.litUp ? COLORS.green[500] : COLORS.gray[100])};
   border: none;
   border-radius: 50%;
 

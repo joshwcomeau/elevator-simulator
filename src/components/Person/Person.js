@@ -3,9 +3,9 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 
-import { colors } from '../../constants';
+import { COLORS } from '../../constants';
 
-import { PATHS } from './Person.data';
+import { PATHS, BODY_COLORS } from './Person.data';
 
 import type { Shape } from './Person.types';
 
@@ -33,7 +33,7 @@ class Person extends PureComponent<Props, State> {
   static defaultProps = {
     destinationX: 0,
     size: 30,
-    color: colors.gray[500],
+    color: BODY_COLORS[0],
     shape: 'pentagon',
     patience: 50,
     walkSpeed: 1,
@@ -166,7 +166,7 @@ const PersonSVG = styled.svg`
 `;
 
 const Leg = styled.line`
-  stroke: ${colors.gray[700]};
+  stroke: ${COLORS.gray[700]};
   stroke-width: 10;
   animation-name: ${props => (props.isWalking ? moveLeg : 'none')};
   animation-duration: ${STEP_DURATION}ms;

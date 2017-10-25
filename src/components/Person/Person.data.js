@@ -1,5 +1,5 @@
 // @flow
-import { colors } from '../../constants';
+import { COLORS } from '../../constants';
 
 import type { Shape } from './Person.types';
 
@@ -21,10 +21,10 @@ export const PATHS = {
   `,
 };
 
-export const COLORS = [
-  colors.red[500],
-  colors.orange[500],
-  colors.green[500],
-  colors.blue[500],
-  colors.purple[500],
+export const BODY_COLORS = [
+  COLORS.red[500],
+  COLORS.orange[500],
+  COLORS.green[500],
+  COLORS.blue[500],
+  COLORS.purple[500],
 ];
