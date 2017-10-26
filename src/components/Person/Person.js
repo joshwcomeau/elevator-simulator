@@ -36,6 +36,7 @@ class Person extends PureComponent<Props> {
       <PersonSvg viewBox="0 0 200 230" width={size} height={size}>
         <LeftLeg isWalking={isWalking} x1={80} y1={195} x2={80} y2={230} />
         <RightLeg isWalking={isWalking} x1={120} y1={195} x2={120} y2={230} />
+        <Arm x1={100} y1={100} x2={200} y2={100} />
         <Body isWalking={isWalking} color={color} d={PATHS[shape]} />
       </PersonSvg>
     );
@@ -94,6 +95,11 @@ const LeftLeg = styled(Leg)`
 
 const RightLeg = styled(Leg)`
   /* No styles needed */
+`;
+
+const Arm = styled.line`
+  stroke: ${COLORS.gray[700]};
+  stroke-width: 10;
 `;
 
 const Body = styled.path`

@@ -28,7 +28,7 @@ export const getRandomPersonAttrbutes = () => {
     id,
     firstName,
     lastName,
-    size: random(25, 35),
+    size: random(45, 55),
     shape: sample(SHAPES),
     color: sample(BODY_COLORS),
     patience: random(1, 10),

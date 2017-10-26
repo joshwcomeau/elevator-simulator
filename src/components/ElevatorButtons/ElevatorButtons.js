@@ -24,8 +24,8 @@ const ElevatorButtons = ({
   hasRequestedDown,
   refCapturer,
 }: Props) => (
-  <ElevatorButtonsWrapper innerRef={refCapturer}>
-    <ElevatorButtonsPlate>
+  <ElevatorButtonsWrapper>
+    <ElevatorButtonsPlate innerRef={refCapturer}>
       {!isTopFloor && <ElevatorButton litUp={hasRequestedUp} />}
       {!isBottomFloor && <ElevatorButton litUp={hasRequestedDown} />}
     </ElevatorButtonsPlate>

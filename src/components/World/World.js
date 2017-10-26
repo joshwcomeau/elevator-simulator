@@ -1,4 +1,5 @@
 // @flow
+// TODO: Rename this component to Building
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -65,80 +66,24 @@ class World extends PureComponent<Props, State> {
   }
 
   generatePeoplePeriodically = () => {
-    // this.setState(state => ({
-    //   people: [
-    //     ...state.people,
-    //     {
-    //       id: 'a',
-    //       locationType: 'floor',
-    //       locationIndex: 0,
-    //       destinationFloor: 2,
-    //       destinationX: 200,
-    //     },
-    //   ],
-    // }));
-    // this.peopleGeneratorId = window.setTimeout(
-    //   this.generatePeoplePeriodically,
-    //   random(10000, 20000)
-    // );
+    // TODO: Should be a saga, right?
   };
 
   callElevator = (originFloor: number, direction: 'up' | 'down') => {
-    //
-    // this.setState(state => ({
-    //   elevatorRequests: {
-    //     ...state.elevatorRequests,
-    //     [direction]: {
-    //       ...state.elevatorRequests[direction],
-    //       [originFloor]: {
-    //         requestedAt: new Date(),
-    //       },
-    //     },
-    //   },
-    // }));
+    // TODO: Should just be a Redux action prolly
   };
 
   renderPerson = (person: any) => {
-    // let destinationX;
-    // switch (person.status) {
-    //   case 'initialized': {
-    //     // In this case, we just need to give them the destination of the
-    //     // elevator button. Once they get there, they'll handle pushing the
-    //     // button
-    //     const elevatorButton = this.buttonRefs[person.floorIndex];
-
-    //     destinationX = elevatorButton.getBoundingClientRect().left;
-    //   }
-    //   case 'waiting-for-elevator': {
-    //     // Right after pushing the button, this is their state.
-    //     // Shuffle around a bit.
-    //     destinationX = random(-20, 10);
-    //   }
-
-    //   case 'boarding-elevator': {
-    //     // The elevator has arrived, and its doors are open.
-    //     // Move our fellow towards the elevator.
-    //     const elevator = this.elevatorRefs[person.elevatorIndex];
-
-    //     destinationX = elevator.getBoundingClientRect().left;
-    //   }
-
-    //   case 'exiting-elevator': {
-    //   }
-    // }
-
     return (
       <PersonController
         status={person.status}
         walkSpeed={person.walkSpeed}
         floorId={person.floorId}
+        destinationFloorId={person.destinationFloorId}
         elevatorId={person.elevatorId}
         floorRef={this.floorRefs[person.floorId]}
         elevatorButtonRef={this.buttonRefs[person.floorId]}
         elevatorRef={this.elevatorRefs[person.elevatorId]}
-        handleRequestElevator={this.callElevator}
-        handleBoardElevator={this.todo}
-        handleArriveAtDestinationFloor={this.todo}
       >
         {({ isWalking }) => <Person {...person} isWalking={isWalking} />}
       </PersonController>

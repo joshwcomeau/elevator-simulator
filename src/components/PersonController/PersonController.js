@@ -36,10 +36,15 @@ class PersonController extends PureComponent<Props, State> {
     const buttonBox = this.props.elevatorButtonRef.getBoundingClientRect();
     const destinationX = buttonBox.left;
 
+    // TODO: Figure out how to poke elevator button
+
     this.setState({ destinationX });
   }
 
   componentDidUpdate(_, prevState) {
+    const { status, requestElevator, floorId } = this.props;
+    const { currentX, destinationX } = this.state;
+
     if (prevState.destinationX !== this.state.destinationX) {
       window.cancelAnimationFrame(this.animationFrameId);
 
@@ -61,6 +66,9 @@ class PersonController extends PureComponent<Props, State> {
     // we can skip a bunch of stuff and just teleport there.
     if (distanceToDestination <= walkSpeed) {
       this.setState({ currentX: destinationX });
+
+      this.finishWalking();
+
       return;
     }
 
@@ -80,6 +88,22 @@ class PersonController extends PureComponent<Props, State> {
     );
   };
 
+  finishWalking = () => {
+    const { status, floorId, destinationFloorId, requestElevator } = this.props;
+
+    switch (status) {
+      case 'initialized': {
+        // We need to hit the right elevator button, and then fire off the
+        // elevator request action.
+        // Hitting the button is surprisingly tricky; we have to work out where
+        // the arm needs to poke, which mixes the SVG ViewBox coordinates with
+        // the DOM BoundingBox coordinates.
+        // Start by figuring out which button to press.
+        const directionToRequest = destinationFloorId > floorId ? 'up' : 'down';
+      }
+    }
+  };
+
   render() {
     const {
       children,
@@ -94,8 +118,6 @@ class PersonController extends PureComponent<Props, State> {
     const renderTarget = floorRef || elevatorRef;
 
     const isWalking = currentX !== destinationX;
-
-    console.log('Render person', { isWalking, currentX, destinationX });
 
     return createPortal(
       <PersonContainer style={{ transform: `translateX(${currentX}px)` }}>
