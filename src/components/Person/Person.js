@@ -1,37 +1,26 @@
 // @flow
 import React, { PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 
 import { COLORS } from '../../constants';
 
 import { PATHS, BODY_COLORS } from './Person.data';
 
-import type { Shape } from './Person.types';
+import type { Shape, Status } from './Person.types';
 
 export type Props = {
+  id: string,
   color: string,
   shape: Shape,
   patience: number,
   walkSpeed: number,
-  destinationX: number,
   size: number,
-  renderTo: {
-    ref: HTMLElement,
-    index: number,
-    type: 'floor' | 'elevator',
-  },
-  destinationFloor: number,
-};
-
-type State = {
-  currentX: number,
+  Status: Status,
   isWalking: boolean,
 };
 
-class Person extends PureComponent<Props, State> {
+class Person extends PureComponent<Props> {
   static defaultProps = {
-    destinationX: 0,
     size: 30,
     color: BODY_COLORS[0],
     shape: 'pentagon',
@@ -40,85 +29,16 @@ class Person extends PureComponent<Props, State> {
     isWalking: false,
   };
 
-  state = {
-    currentX: 0,
-    isWalking: false,
-  };
-
-  animationFrameId: number;
-
-  componentDidMount() {
-    if (this.props.destinationX !== this.state.currentX) {
-      this.moveTowardsDestinationX();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.destinationX !== this.props.destinationX) {
-      window.cancelAnimationFrame(this.animationFrameId);
-
-      this.moveTowardsDestinationX();
-    }
-  }
-
-  componentWillUnmount() {
-    window.cancelAnimationFrame(this.animationFrameId);
-  }
-
-  moveTowardsDestinationX = () => {
-    const { currentX } = this.state;
-    const { destinationX, walkSpeed } = this.props;
-
-    const distanceToDestination = Math.abs(currentX - destinationX);
-
-    // If we're _almost_ at our destination (we'll get there in the next tick),
-    // we can skip a bunch of stuff and just teleport there.
-    if (distanceToDestination <= walkSpeed) {
-      this.setState({ isWalking: false, currentX: destinationX });
-      return;
-    }
-
-    const direction = destinationX < currentX ? 'left' : 'right';
-
-    const offsetAmount = direction === 'right' ? walkSpeed : -walkSpeed;
-
-    this.setState(
-      state => ({
-        isWalking: true,
-        currentX: state.currentX + offsetAmount,
-      }),
-      () => {
-        this.animationFrameId = window.requestAnimationFrame(
-          this.moveTowardsDestinationX
-        );
-      }
-    );
-  };
-
   render() {
-    const { size, color, shape, renderTo } = this.props;
-    const { currentX, isWalking } = this.state;
+    const { size, color, shape, isWalking } = this.props;
 
-    const personElement = (
-      <PersonSVG
-        viewBox="0 0 200 230"
-        width={size}
-        height={size}
-        style={{ transform: `translateX(${currentX}px)` }}
-      >
+    return (
+      <PersonSvg viewBox="0 0 200 230" width={size} height={size}>
         <LeftLeg isWalking={isWalking} x1={80} y1={195} x2={80} y2={230} />
         <RightLeg isWalking={isWalking} x1={120} y1={195} x2={120} y2={230} />
         <Body isWalking={isWalking} color={color} d={PATHS[shape]} />
-      </PersonSVG>
+      </PersonSvg>
     );
-
-    // If we've specified a `renderTo`, open a portal to it.
-    // otherwise, just render into the tree.
-    if (renderTo) {
-      return ReactDOM.createPortal(personElement, renderTo.ref);
-    }
-
-    return personElement;
   }
 }
 
@@ -155,14 +75,8 @@ const moveLeg = keyframes`
 
 const STEP_DURATION = 500;
 
-const PersonSVG = styled.svg`
-  /*
-    Initialize all people in the bottom left corner of their parent container.
-    They'll be moved around with transform: translate.
-  */
-  position: absolute;
-  left: 0;
-  bottom: 0;
+const PersonSvg = styled.svg`
+  display: block;
 `;
 
 const Leg = styled.line`

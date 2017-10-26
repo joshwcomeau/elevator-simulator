@@ -5,6 +5,8 @@ export const range = n =>
 
 export const sample = arr => arr[Math.floor(Math.random() * arr.length)];
 
+// Simple random number generator.
+// inclusive min, exclusive max
 export const random = (min, max) =>
   Math.floor(Math.random() * (max - min)) + min;
 

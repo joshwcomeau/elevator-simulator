@@ -6,42 +6,26 @@ import styled from 'styled-components';
 import { initializeBuilding, generateRandomPerson } from '../../actions';
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { random, range } from '../../utils';
+import { getPeopleArray } from '../../reducers/people.reducer';
 
 import Elevator from '../Elevator';
 import Floor from '../Floor';
-import Person, { RandomPersonGenerator } from '../Person';
+import Person from '../Person';
+import PersonController from '../PersonController';
 
 import type { ActionCreator } from '../../types';
 import type { ElevatorsState } from '../../reducers/elevators.reducer';
 import type { FloorsState } from '../../reducers/floors.reducer';
-
-type PersonData = {
-  id: string,
-  locationType: 'floor' | 'elevator',
-  locationIndex: number,
-  destinationFloor: number,
-};
-
-type ElevatorRequests = {
-  [direction: 'up' | 'down']: {
-    [floorIndex: number]: {
-      requestedAt: Date,
-    },
-  },
-};
+import type { Person as PersonData } from '../../reducers/people.reducer';
 
 type Props = {
   numFloors: number,
   numElevators: number,
   floors: FloorsState,
   elevators: ElevatorsState,
+  people: Array<PersonData>,
   initializeBuilding: ActionCreator,
   generateRandomPerson: ActionCreator,
-};
-
-type State = {
-  people: Array<PersonData>,
-  elevatorRequests: ElevatorRequests,
 };
 
 class World extends PureComponent<Props, State> {
@@ -53,13 +37,6 @@ class World extends PureComponent<Props, State> {
   floorRefs: Array<HTMLElement> = [];
   elevatorRefs: Array<HTMLElement> = [];
   buttonRefs: Array<HTMLElement> = [];
-
-  peopleGeneratorId: number;
-
-  state = {
-    people: [],
-    elevatorRequests: {},
-  };
 
   componentDidMount() {
     const {
@@ -73,7 +50,14 @@ class World extends PureComponent<Props, State> {
 
     // We've rendered a buncha floors and elevators, and captured their refs.
     // We need to know the X offset for each elevator shaft,
-    window.requestAnimationFrame(generateRandomPerson);
+    window.setTimeout(
+      () =>
+        generateRandomPerson({
+          floorId: 0,
+          destinationFloorId: random(1, numFloors),
+        }),
+      500
+    );
   }
 
   componentWillUnmount() {
@@ -101,79 +85,68 @@ class World extends PureComponent<Props, State> {
 
   callElevator = (originFloor: number, direction: 'up' | 'down') => {
     //
-    this.setState(state => ({
-      elevatorRequests: {
-        ...state.elevatorRequests,
-        [direction]: {
-          ...state.elevatorRequests[direction],
-          [originFloor]: {
-            requestedAt: new Date(),
-          },
-        },
-      },
-    }));
+    // this.setState(state => ({
+    //   elevatorRequests: {
+    //     ...state.elevatorRequests,
+    //     [direction]: {
+    //       ...state.elevatorRequests[direction],
+    //       [originFloor]: {
+    //         requestedAt: new Date(),
+    //       },
+    //     },
+    //   },
+    // }));
   };
 
   renderPerson = (person: any) => {
-    let destinationX;
-    switch (person.status) {
-      case 'initialized': {
-        // In this case, we just need to give them the destination of the
-        // elevator button. Once they get there, they'll handle pushing the
-        // button
-        const elevatorButton = this.buttonRefs[person.floorIndex];
+    // let destinationX;
+    // switch (person.status) {
+    //   case 'initialized': {
+    //     // In this case, we just need to give them the destination of the
+    //     // elevator button. Once they get there, they'll handle pushing the
+    //     // button
+    //     const elevatorButton = this.buttonRefs[person.floorIndex];
 
-        destinationX = elevatorButton.getBoundingClientRect().left;
-      }
-      case 'waiting-for-elevator': {
-        // Right after pushing the button, this is their state.
-        // Shuffle around a bit.
-        destinationX = random(-20, 10);
-      }
+    //     destinationX = elevatorButton.getBoundingClientRect().left;
+    //   }
+    //   case 'waiting-for-elevator': {
+    //     // Right after pushing the button, this is their state.
+    //     // Shuffle around a bit.
+    //     destinationX = random(-20, 10);
+    //   }
 
-      case 'boarding-elevator': {
-        // The elevator has arrived, and its doors are open.
-        // Move our fellow towards the elevator.
-        const elevator = this.elevatorRefs[person.elevatorIndex];
+    //   case 'boarding-elevator': {
+    //     // The elevator has arrived, and its doors are open.
+    //     // Move our fellow towards the elevator.
+    //     const elevator = this.elevatorRefs[person.elevatorIndex];
 
-        destinationX = elevator.getBoundingClientRect().left;
-      }
+    //     destinationX = elevator.getBoundingClientRect().left;
+    //   }
 
-      case 'exiting-elevator': {
-      }
-    }
+    //   case 'exiting-elevator': {
+    //   }
+    // }
 
-    // <PersonMover
-    //   renderTo={{
-    //     ref: this.floorRefs[person.locationIndex],
-    //     index: person.locationIndex,
-    //     type: 'floor',
-    //   }}
-    //   moveTowards={{
-
-    //   }}
     return (
-      <RandomPersonGenerator key={person.id}>
-        {randomizedProps => (
-          <Person
-            {...person}
-            {...randomizedProps}
-            renderTo={{
-              ref: this.floorRefs[person.locationIndex],
-              index: person.locationIndex,
-              type: 'floor',
-            }}
-            handleElevatorButtonPush={this.callElevator}
-          />
-        )}
-      </RandomPersonGenerator>
+      <PersonController
+        status={person.status}
+        walkSpeed={person.walkSpeed}
+        floorId={person.floorId}
+        elevatorId={person.elevatorId}
+        floorRef={this.floorRefs[person.floorId]}
+        elevatorButtonRef={this.buttonRefs[person.floorId]}
+        elevatorRef={this.elevatorRefs[person.elevatorId]}
+        handleRequestElevator={this.callElevator}
+        handleBoardElevator={this.todo}
+        handleArriveAtDestinationFloor={this.todo}
+      >
+        {({ isWalking }) => <Person {...person} isWalking={isWalking} />}
+      </PersonController>
     );
   };
 
   render() {
-    const { floors, elevators } = this.props;
-
-    console.log(floors, elevators, this.floorRefs);
+    const { floors, elevators, people } = this.props;
 
     return (
       <WorldElem>
@@ -201,7 +174,7 @@ class World extends PureComponent<Props, State> {
           ))}
         </Elevators>
 
-        {this.state.people.map(this.renderPerson)}
+        {people.map(this.renderPerson)}
       </WorldElem>
     );
   }
@@ -231,6 +204,7 @@ const Elevators = styled.div`
 const mapStateToProps = state => ({
   floors: state.floors,
   elevators: state.elevators,
+  people: getPeopleArray(state),
 });
 
 const mapDispatchToProps = { initializeBuilding, generateRandomPerson };
