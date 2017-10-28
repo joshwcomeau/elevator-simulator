@@ -1,15 +1,25 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
+import createSagaMiddleware from 'redux-saga';
 
 import rootReducer from '../reducers';
+import requestElevatorSaga from '../sagas/request-elevator.saga';
 import DevTools from '../components/DevTools';
 
 export default function configureStore(initialState) {
+  // create the saga middleware
+  const sagaMiddleware = createSagaMiddleware();
+
   // prettier-ignore
   const store = createStore(
     rootReducer,
     initialState,
-    DevTools.instrument()
+    compose(
+      applyMiddleware(sagaMiddleware),
+      DevTools.instrument()
+    )
   );
+
+  sagaMiddleware.run(requestElevatorSaga);
 
   // Allow direct access to the store, for debugging/testing
   window.store = store;

@@ -1,10 +1,20 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import createSagaMiddleware from 'redux-saga';
 
 import rootReducer from '../reducers';
-import { handleStoreUpdates } from '../helpers/local-storage.helpers';
+import requestElevatorSaga from '../sagas/request-elevator.saga';
 
 export default function configureStore(initialState) {
-  const store = createStore(rootReducer, initialState);
+  // create the saga middleware
+  const sagaMiddleware = createSagaMiddleware();
+
+  const store = createStore(
+    rootReducer,
+    initialState,
+    applyMiddleware(sagaMiddleware)
+  );
+
+  sagaMiddleware.run(requestElevatorSaga);
 
   return store;
 }
