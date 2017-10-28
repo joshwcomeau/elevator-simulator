@@ -113,4 +113,5 @@ export const generateRandomPerson = ({
   generatePerson({
     ...getRandomPersonAttrbutes(),
     floorId,
+    destinationFloorId,
   });

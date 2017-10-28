@@ -15,6 +15,7 @@ export type Person = {
   walkSpeed: number,
   floorId?: number,
   elevatorId?: number,
+  destinationFloorId: number,
   status: Status,
 };
 

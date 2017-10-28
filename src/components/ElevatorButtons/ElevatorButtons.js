@@ -38,7 +38,7 @@ const BUTTON_PADDING = 6;
 const ElevatorButtonsWrapper = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   width: 45px;
 `;
 
@@ -50,6 +50,7 @@ const ElevatorButtonsPlate = styled.div`
   background: rgba(0, 0, 0, 0.2);
   padding: 4px;
   height: 20px;
+  margin-bottom: 10px;
 `;
 
 const ElevatorButton = styled.button`
@@ -65,15 +66,15 @@ const ElevatorButton = styled.button`
   }
 `;
 
-const mapStateToProps = (state, { id }) => {
+const mapStateToProps = (state, { floorId }) => {
   const { floors, elevatorRequests } = state;
 
-  const floor = floors[id];
+  const floor = floors[floorId];
 
-  const requestsForThisFloor = getElevatorRequestsByFloor(id, state);
+  const requestsForThisFloor = getElevatorRequestsByFloor(floorId, state);
 
-  const isBottomFloor = id === 0;
-  const isTopFloor = id === floors.length - 1;
+  const isBottomFloor = floorId === 0;
+  const isTopFloor = floorId === floors.length - 1;
 
   const hasRequestedUp = requestsForThisFloor.includes(
     request => request.direction === 'up'

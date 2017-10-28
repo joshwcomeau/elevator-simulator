@@ -29,7 +29,7 @@ type Props = {
   generateRandomPerson: ActionCreator,
 };
 
-class World extends PureComponent<Props, State> {
+class World extends PureComponent<Props> {
   static defaultProps = {
     numFloors: 4,
     numElevators: 1,
@@ -69,23 +69,23 @@ class World extends PureComponent<Props, State> {
     // TODO: Should be a saga, right?
   };
 
-  callElevator = (originFloor: number, direction: 'up' | 'down') => {
-    // TODO: Should just be a Redux action prolly
-  };
-
   renderPerson = (person: any) => {
     return (
       <PersonController
-        status={person.status}
-        walkSpeed={person.walkSpeed}
-        floorId={person.floorId}
-        destinationFloorId={person.destinationFloorId}
-        elevatorId={person.elevatorId}
+        key={person.id}
+        {...person}
         floorRef={this.floorRefs[person.floorId]}
         elevatorButtonRef={this.buttonRefs[person.floorId]}
         elevatorRef={this.elevatorRefs[person.elevatorId]}
       >
-        {({ isWalking }) => <Person {...person} isWalking={isWalking} />}
+        {({ isWalking, armPokeTarget, handleElevatorRequest }) => (
+          <Person
+            {...person}
+            isWalking={isWalking}
+            armPokeTarget={armPokeTarget}
+            handleElevatorRequest={handleElevatorRequest}
+          />
+        )}
       </PersonController>
     );
   };
@@ -127,7 +127,7 @@ class World extends PureComponent<Props, State> {
 
 const WorldElem = styled.div`
   position: relative;
-  width: 500px;
+  width: 300px;
 `;
 
 const Floors = styled.div`
