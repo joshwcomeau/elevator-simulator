@@ -33,7 +33,7 @@ type State = {
 
 const VIEWBOX_WIDTH = 200;
 const VIEWBOX_HEIGHT = 230;
-const ARM_POKE_DURATION = 500;
+const ARM_POKE_DURATION = 350;
 
 class Person extends PureComponent<Props, State> {
   elem: HTMLElement;
@@ -115,7 +115,7 @@ class Person extends PureComponent<Props, State> {
       strokeDasharray: armLength,
       transition:
         armStatus !== 'idle'
-          ? `stroke-dashoffset 500ms`
+          ? `stroke-dashoffset ${ARM_POKE_DURATION}ms linear`
           : `stroke-dashoffset 0`,
     };
 

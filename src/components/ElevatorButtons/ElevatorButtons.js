@@ -76,11 +76,11 @@ const mapStateToProps = (state, { floorId }) => {
   const isBottomFloor = floorId === 0;
   const isTopFloor = floorId === floors.length - 1;
 
-  const hasRequestedUp = requestsForThisFloor.includes(
+  const hasRequestedUp = requestsForThisFloor.some(
     request => request.direction === 'up'
   );
 
-  const hasRequestedDown = requestsForThisFloor.includes(
+  const hasRequestedDown = requestsForThisFloor.some(
     request => request.direction === 'down'
   );
 
