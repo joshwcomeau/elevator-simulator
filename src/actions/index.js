@@ -9,36 +9,27 @@ import type { Direction } from '../types';
 export const INITIALIZE_BUILDING = 'INITIALIZE_BUILDING';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const REQUEST_ELEVATOR = 'REQUEST_ELEVATOR';
+export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const GENERATE_PERSON = 'GENERATE_PERSON';
 export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
 //
 // Action Creators
-export const initializeBuilding = ({
-  numFloors,
-  numElevators,
-}: {
-  numFloors: number,
-  numElevators: number,
-}) => ({
+type InitializeBuilding = { numFloors: number, numElevators: number };
+export const initializeBuilding = (args: InitializeBuilding) => ({
   type: INITIALIZE_BUILDING,
-  numFloors,
-  numElevators,
+  ...args,
 });
 
-export const openElevatorDoors = ({ elevatorId }: { elevatorId: number }) => ({
+type OpenElevatorDoors = { elevatorId: number };
+export const openElevatorDoors = ({ elevatorId }: OpenElevatorDoors) => ({
   type: OPEN_ELEVATOR_DOORS,
   elevatorId,
 });
 
-export const requestElevator = ({
-  floorId,
-  direction,
-}: {
-  floorId: number,
-  direction: Direction,
-}) => {
+type RequestElevator = { floorId: number, direction: Direction };
+export const requestElevator = ({ floorId, direction }: RequestElevator) => {
   // Get a timestamp. Maybe this won't be useful in the end, but it seems neat
   // to be able to diagnose average request delays, in addition to person
   // wait times.
@@ -57,27 +48,33 @@ export const requestElevator = ({
   };
 };
 
+type DispatchElevator = {
+  elevatorId: number,
+  floorId: number,
+  elevatorRequestId: string,
+};
+export const dispatchElevator = ({
+  elevatorId,
+  floorId,
+  elevatorRequestId,
+}: DispatchElevator) => ({
+  type: DISPATCH_ELEVATOR,
+  elevatorId,
+  floorId,
+  elevatorRequestId,
+});
+
+type ElevatorArrivesAtFloor = { elevatorId: number, floorId: number };
 export const elevatorArrivesAtFloor = ({
   elevatorId,
   floorId,
-}: {
-  elevatorId: number,
-  floorId: number,
-}) => ({
+}: ElevatorArrivesAtFloor) => ({
   type: ELEVATOR_ARRIVES_AT_FLOOR,
   elevatorId,
   floorId,
 });
 
-export const generatePerson = ({
-  shape,
-  size,
-  color,
-  patience,
-  walkSpeed,
-  floorId,
-  destinationFloorId,
-}: {
+type GeneratePersonArgs = {
   id: string,
   firstName: string,
   lastName: string,
@@ -88,28 +85,21 @@ export const generatePerson = ({
   walkSpeed: number,
   floorId: number,
   destinationFloorId: number,
-}) => ({
+};
+export const generatePerson = (args: GeneratePersonArgs) => ({
   type: GENERATE_PERSON,
   person: {
     status: 'initialized',
-    shape,
-    size,
-    color,
-    patience,
-    walkSpeed,
-    floorId,
-    destinationFloorId,
+    ...args,
   },
 });
 
 // NOTE: This action-creator is impure, generates random values.
+type GenerateRandomPerson = { floorId: number, destinationFloorId: number };
 export const generateRandomPerson = ({
   floorId,
   destinationFloorId,
-}: {
-  floorId: number,
-  destinationFloorId: number,
-}) =>
+}: GenerateRandomPerson) =>
   generatePerson({
     ...getRandomPersonAttrbutes(),
     floorId,
