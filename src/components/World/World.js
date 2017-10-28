@@ -112,6 +112,7 @@ class World extends PureComponent<Props> {
           {elevators.map(elevator => (
             <Elevator
               key={elevator.id}
+              id={elevator.id}
               innerRef={elem => {
                 this.elevatorRefs[elevator.id] = elem;
               }}
