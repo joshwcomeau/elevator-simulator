@@ -3,7 +3,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT } from '../../constants';
+import {
+  COLORS,
+  ELEVATOR_SHAFT_WIDTH,
+  FLOOR_HEIGHT,
+  FLOOR_BORDER_WIDTH,
+} from '../../constants';
 import { range } from '../../utils';
 
 import ElevatorButtons from '../ElevatorButtons';
@@ -44,7 +49,7 @@ const Floor = ({
 const FloorElem = styled.div`
   position: relative;
   height: ${FLOOR_HEIGHT}px;
-  border-bottom: 1px solid #333;
+  border-bottom: ${FLOOR_BORDER_WIDTH}px solid ${COLORS.gray[700]};
 `;
 
 const FloorElevatorLayer = styled.div`

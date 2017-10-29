@@ -95,6 +95,18 @@ class World extends PureComponent<Props> {
 
     return (
       <WorldElem>
+        <Elevators>
+          {elevators.map(elevator => (
+            <Elevator
+              key={elevator.id}
+              id={elevator.id}
+              innerRef={elem => {
+                this.elevatorRefs[elevator.id] = elem;
+              }}
+            />
+          ))}
+        </Elevators>
+
         <Floors>
           {floors.map(floor => (
             <Floor
@@ -107,18 +119,6 @@ class World extends PureComponent<Props> {
             />
           ))}
         </Floors>
-
-        <Elevators>
-          {elevators.map(elevator => (
-            <Elevator
-              key={elevator.id}
-              id={elevator.id}
-              innerRef={elem => {
-                this.elevatorRefs[elevator.id] = elem;
-              }}
-            />
-          ))}
-        </Elevators>
 
         {people.map(this.renderPerson)}
       </WorldElem>

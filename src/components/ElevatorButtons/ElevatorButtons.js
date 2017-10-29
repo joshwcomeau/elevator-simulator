@@ -6,7 +6,11 @@ import styled from 'styled-components';
 import { COLORS } from '../../constants';
 import { getElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
 
+import ElevatorButton from '../ElevatorButton';
+
 import type { RefCapturer } from '../../types';
+
+const BUTTON_SIZE = 8;
 
 type Props = {
   floorId: number,
@@ -16,7 +20,6 @@ type Props = {
   hasRequestedDown: boolean,
   refCapturer: RefCapturer,
 };
-
 const ElevatorButtons = ({
   isBottomFloor,
   isTopFloor,
@@ -26,14 +29,23 @@ const ElevatorButtons = ({
 }: Props) => (
   <ElevatorButtonsWrapper>
     <ElevatorButtonsPlate innerRef={refCapturer}>
-      {!isTopFloor && <ElevatorButton litUp={hasRequestedUp} />}
-      {!isBottomFloor && <ElevatorButton litUp={hasRequestedDown} />}
+      {!isTopFloor && (
+        <ElevatorButton
+          size={BUTTON_SIZE}
+          direction="up"
+          isRequested={hasRequestedUp}
+        />
+      )}
+      {!isBottomFloor && (
+        <ElevatorButton
+          size={BUTTON_SIZE}
+          direction="down"
+          isRequested={hasRequestedDown}
+        />
+      )}
     </ElevatorButtonsPlate>
   </ElevatorButtonsWrapper>
 );
-
-const BUTTON_SIZE = 8;
-const BUTTON_PADDING = 6;
 
 const ElevatorButtonsWrapper = styled.div`
   display: flex;
@@ -47,23 +59,10 @@ const ElevatorButtonsPlate = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.05);
   padding: 4px;
-  height: 20px;
-  margin-bottom: 10px;
-`;
-
-const ElevatorButton = styled.button`
-  width: ${BUTTON_SIZE}px;
-  height: ${BUTTON_SIZE}px;
-  padding: 0;
-  background: ${props => (props.litUp ? COLORS.green[500] : COLORS.gray[100])};
-  border: none;
-  border-radius: 50%;
-
-  &:nth-of-type(2) {
-    margin-top: 2px;
-  }
+  height: 26px;
+  margin-bottom: 16px;
 `;
 
 const mapStateToProps = (state, { floorId }) => {
