@@ -13,6 +13,7 @@ import { getElevatorOffset } from './Elevator.helpers';
 type Props = {
   status: string,
   floorId: number,
+  numFloors: number,
   requestedFloorIds: Array<number>,
   elevatorSpeed: number,
   onRest: () => void,
@@ -21,37 +22,45 @@ type Props = {
 type State = {
   currentY: number,
   destinationY: number,
-}
+};
 
 class Elevator extends PureComponent<Props, State> {
   elem: HTMLElement;
-
-  state = {
-    currentY: 0,
-    destinationY: 0,
-  }
+  animationFrameId: number;
 
   static defaultProps = {
-    elevatorSpeed: 10,
+    elevatorSpeed: 1,
   };
 
-  componentDidMount() {
-    const { status, numFloors, requestedFloorIds } = nextProps;
+  constructor(props) {
+    super(props);
 
-    const currentY = getElevatorOffset()
+    const { status, numFloors, floorId } = props;
+
+    const currentY = getElevatorOffset(floorId, numFloors);
+    // I'm assuming that all elevators initialize at their intended floor.
+    // Because of that, destination === current.
+    const destinationY = currentY;
+
+    this.state = {
+      currentY,
+      destinationY,
+    };
   }
 
   componentWillReceiveProps(nextProps) {
     const { status, numFloors, requestedFloorIds } = nextProps;
+    const { currentY } = this.state;
+
+    console.log(this.props.status, nextProps.status, requestedFloorIds);
 
     // Kick-start a new animation loop if the elevator is moving into 'en-route'.
     if (this.props.status !== 'en-route' && nextProps.status === 'en-route') {
-      const [floorId] = requestedFloorIds;
+      const [destinationFloorId] = requestedFloorIds;
 
-      const currentY = this.elem.getBoundingClientRect().top;
-      const destinationY = (numFloors - 1 - floorId) * FLOOR_HEIGHT;
+      const destinationY = getElevatorOffset(destinationFloorId, numFloors);
 
-      this.setState({ currentY, destinationY }, this.moveTowardsDestinationY)
+      this.setState({ currentY, destinationY }, this.moveTowardsDestinationY);
     }
   }
 
@@ -70,21 +79,34 @@ class Elevator extends PureComponent<Props, State> {
       return;
     }
 
+    const direction = destinationY > currentY ? 'down' : 'up';
+    const offsetAmount = direction === 'down' ? elevatorSpeed : -elevatorSpeed;
 
-  }
+    this.setState(
+      state => ({
+        currentY: state.currentY + offsetAmount,
+      }),
+      () => {
+        this.animationFrameId = window.requestAnimationFrame(
+          this.moveTowardsDestinationY
+        );
+      }
+    );
+  };
 
   finishMoving = () => {
     // TODO: This could either be responding to an elevator request, or
     // unloading one or more passengers, or both. Just dispatch a redux action
     // and let a saga deal with it?
-  }
+  };
 
   render() {
-    const { numFloors, requestedFloorIds } = this.props;
+    const { numFloors, floorId, requestedFloorIds } = this.props;
+    const { currentY } = this.state;
 
     return (
-      <ElevatorShaft innerRef={elem => this.elem = elem}>
-        <ElevatorCarContainer numFloors={numFloors} floor={floorId}>
+      <ElevatorShaft innerRef={elem => (this.elem = elem)}>
+        <ElevatorCarContainer style={{ transform: `translateY(${currentY}px` }}>
           <ElevatorCar />
         </ElevatorCarContainer>
       </ElevatorShaft>
@@ -100,8 +122,6 @@ const ElevatorShaft = styled.div`
 const ElevatorCarContainer = styled.div`
   width: ${ELEVATOR_SHAFT_WIDTH}px;
   height: ${FLOOR_HEIGHT}px;
-  transform: translateY(${props => (props.numFloors - props.floor - 1) * 100}%);
-  transition: transform 500ms;
 `;
 
 const ElevatorCar = styled.div`
@@ -111,10 +131,15 @@ const ElevatorCar = styled.div`
   background: white;
 `;
 
-const mapStateToProps = (state, ownProps) => ({
-  numFloors: state.floors.length,
-  floorId: state.elevators[ownProps.id].floorId,
-  status: state.elevators[ownProps.id].status,
-});
+const mapStateToProps = (state, ownProps) => {
+  const elevatorData = state.elevators[ownProps.id];
+
+  return {
+    status: elevatorData.status,
+    floorId: elevatorData.floorId,
+    requestedFloorIds: elevatorData.requestedFloorIds,
+    numFloors: state.floors.length,
+  };
+};
 
 export default connect(mapStateToProps)(Elevator);
