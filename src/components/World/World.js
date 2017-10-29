@@ -54,8 +54,8 @@ class World extends PureComponent<Props> {
     window.setTimeout(
       () =>
         generateRandomPerson({
-          floorId: 0,
-          destinationFloorId: random(1, numFloors),
+          floorId: 2,
+          destinationFloorId: 1,
         }),
       500
     );

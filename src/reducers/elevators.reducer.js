@@ -1,5 +1,6 @@
 // @flow
-import { INITIALIZE_BUILDING, ELEVATOR_ARRIVES_AT_FLOOR } from '../actions';
+import update from 'immutability-helper';
+import { INITIALIZE_BUILDING, ELEVATOR_ARRIVES_AT_FLOOR, DISPATCH_ELEVATOR } from '../actions';
 import { range } from '../utils';
 
 import type { Action } from '../types';
@@ -7,7 +8,8 @@ import type { Action } from '../types';
 type IdleElevator = {
   id: number,
   status: 'idle',
-  currentFloorId: number,
+  floorId: number,
+  doors: 'open' | 'closed',
 };
 
 type EnRouteElevator = {
@@ -34,8 +36,19 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       return range(action.numElevators).map(id => ({
         id,
         status: 'idle',
-        currentFloorId: 0,
+        floorId: 0,
+        doors: 'closed',
       }));
+    }
+
+    case DISPATCH_ELEVATOR: {
+      return update(state, {
+        [action.elevatorId]: {
+          status: { $set: 'en-route' },
+          floorId: { $set: action.floorId },
+          elevatorRequestId: { $set: action.elevatorRequestId },
+        },
+      })
     }
 
     default:

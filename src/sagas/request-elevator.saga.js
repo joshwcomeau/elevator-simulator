@@ -1,3 +1,4 @@
+// @flow
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import { REQUEST_ELEVATOR, dispatchElevator } from '../actions';
@@ -25,7 +26,7 @@ function* requestElevator(action) {
   }
 }
 
-function* listener() {
+function* listener(): Generator<*, *, *> {
   yield takeEvery(REQUEST_ELEVATOR, requestElevator);
 }
 
