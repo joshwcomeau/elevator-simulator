@@ -7,10 +7,11 @@ import type { Direction } from '../types';
 //
 // Action Types
 export const INITIALIZE_BUILDING = 'INITIALIZE_BUILDING';
-export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const REQUEST_ELEVATOR = 'REQUEST_ELEVATOR';
 export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
+export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
+export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
 export const GENERATE_PERSON = 'GENERATE_PERSON';
 export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
@@ -20,12 +21,6 @@ type InitializeBuilding = { numFloors: number, numElevators: number };
 export const initializeBuilding = (args: InitializeBuilding) => ({
   type: INITIALIZE_BUILDING,
   ...args,
-});
-
-type OpenElevatorDoors = { elevatorId: number };
-export const openElevatorDoors = ({ elevatorId }: OpenElevatorDoors) => ({
-  type: OPEN_ELEVATOR_DOORS,
-  elevatorId,
 });
 
 type RequestElevator = { floorId: number, direction: Direction };
@@ -53,28 +48,34 @@ type DispatchElevator = {
   floorId: number,
   elevatorRequestId: string,
 };
-export const dispatchElevator = ({
-  elevatorId,
-  floorId,
-  elevatorRequestId,
-}: DispatchElevator) => ({
+export const dispatchElevator = (args: DispatchElevator) => ({
   type: DISPATCH_ELEVATOR,
-  elevatorId,
-  floorId,
-  elevatorRequestId,
+  ...args,
 });
 
 type ElevatorArrivesAtFloor = { elevatorId: number, floorId: number };
-export const elevatorArrivesAtFloor = ({
-  elevatorId,
-  floorId,
-}: ElevatorArrivesAtFloor) => ({
+export const elevatorArrivesAtFloor = (args: ElevatorArrivesAtFloor) => ({
   type: ELEVATOR_ARRIVES_AT_FLOOR,
-  elevatorId,
-  floorId,
+  ...args,
 });
 
-type GeneratePersonArgs = {
+type OpenElevatorDoors = { elevatorId: number };
+export const openElevatorDoors = (args: OpenElevatorDoors) => ({
+  type: OPEN_ELEVATOR_DOORS,
+  ...args,
+});
+
+type FulfillElevatorRequest = {
+  elevatorId: number,
+  floorId: number,
+  elevatorRequestId: string,
+};
+export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
+  type: FULFILL_ELEVATOR_REQUEST,
+  ...args,
+});
+
+type GeneratePerson = {
   id: string,
   firstName: string,
   lastName: string,
@@ -86,7 +87,7 @@ type GeneratePersonArgs = {
   floorId: number,
   destinationFloorId: number,
 };
-export const generatePerson = (args: GeneratePersonArgs) => ({
+export const generatePerson = (args: GeneratePerson) => ({
   type: GENERATE_PERSON,
   person: {
     status: 'initialized',
@@ -96,12 +97,8 @@ export const generatePerson = (args: GeneratePersonArgs) => ({
 
 // NOTE: This action-creator is impure, generates random values.
 type GenerateRandomPerson = { floorId: number, destinationFloorId: number };
-export const generateRandomPerson = ({
-  floorId,
-  destinationFloorId,
-}: GenerateRandomPerson) =>
+export const generateRandomPerson = (args: GenerateRandomPerson) =>
   generatePerson({
     ...getRandomPersonAttrbutes(),
-    floorId,
-    destinationFloorId,
+    ...args,
   });

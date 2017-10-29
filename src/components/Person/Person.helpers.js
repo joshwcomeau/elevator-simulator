@@ -1,6 +1,7 @@
+// @flow
 import { sample, random } from '../../utils';
 
-import { SHAPES, PATHS, BODY_COLORS } from './Person.data';
+import { SHAPES, BODY_COLORS } from './Person.data';
 
 // prettier-ignore
 const FIRST_NAMES = [
@@ -32,7 +33,7 @@ export const getRandomPersonAttrbutes = () => {
     shape: sample(SHAPES),
     color: sample(BODY_COLORS),
     patience: random(1, 10),
-    walkSpeed: random(5, 10) / 10,
+    walkSpeed: random(5, 10), // / 10,
   };
 };
 

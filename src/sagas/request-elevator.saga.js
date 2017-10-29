@@ -1,5 +1,5 @@
 // @flow
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { put, select, takeEvery } from 'redux-saga/effects';
 
 import { REQUEST_ELEVATOR, dispatchElevator } from '../actions';
 
@@ -9,8 +9,6 @@ function* requestElevator(action) {
     state => state.elevatorRequests[action.id]
   );
 
-  console.log({action})
-
   // If there are any idle elevators, send them to deal with this request.
   const elevators = yield select(state => state.elevators);
   const firstIdleElevator = elevators.find(
@@ -18,11 +16,13 @@ function* requestElevator(action) {
   );
 
   if (firstIdleElevator) {
-    yield put(dispatchElevator({
-      elevatorId: firstIdleElevator.id,
-      floorId: elevatorRequest.floorId,
-      elevatorRequestId: action.id,
-    }));
+    yield put(
+      dispatchElevator({
+        elevatorId: firstIdleElevator.id,
+        floorId: elevatorRequest.floorId,
+        elevatorRequestId: action.id,
+      })
+    );
   }
 }
 

@@ -47,3 +47,5 @@ export const COLORS = {
 export const ELEVATOR_SHAFT_WIDTH = 65;
 export const FLOOR_HEIGHT = 80;
 export const FLOOR_BORDER_WIDTH = 6;
+
+export const ELEVATOR_DOOR_TRANSITION_LENGTH = 1250;

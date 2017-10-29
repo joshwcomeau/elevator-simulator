@@ -1,8 +1,10 @@
+// @flow
 import { createStore, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 
 import rootReducer from '../reducers';
 import requestElevatorSaga from '../sagas/request-elevator.saga';
+import elevatorArrivesAtFloor from '../sagas/elevator-arrives-at-floor.saga';
 
 export default function configureStore(initialState) {
   // create the saga middleware
@@ -15,6 +17,7 @@ export default function configureStore(initialState) {
   );
 
   sagaMiddleware.run(requestElevatorSaga);
+  sagaMiddleware.run(elevatorArrivesAtFloor);
 
   return store;
 }

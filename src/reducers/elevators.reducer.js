@@ -2,19 +2,21 @@
 import update from 'immutability-helper';
 import {
   INITIALIZE_BUILDING,
-  ELEVATOR_ARRIVES_AT_FLOOR,
+  OPEN_ELEVATOR_DOORS,
   DISPATCH_ELEVATOR,
 } from '../actions';
 import { range } from '../utils';
 
 import type { Action } from '../types';
 
+export type DoorStatus = 'open' | 'closed';
+
 // An idle elevator is sitting at a floor, waiting for a request.
 type IdleElevator = {
   id: number,
   status: 'idle',
   floorId: number,
-  doors: 'open' | 'closed',
+  doors: DoorStatus,
 };
 
 // An elevator is en-route when it is moving. This happens when an idle
@@ -25,7 +27,7 @@ type EnRouteElevator = {
   status: 'en-route',
   elevatorRequestId: string,
   requestedFloorIds: Array<number>,
-  doors: 'open' | 'closed',
+  doors: DoorStatus,
 };
 
 // Finally, when an elevator stops at a floor either to pick up mew passengers,
@@ -35,7 +37,7 @@ type BoardingDisembarkingElevator = {
   status: 'boarding-disembarking',
   floorId: number,
   requestedFloorIds: Array<number>,
-  doors: 'open' | 'closed',
+  doors: DoorStatus,
 };
 
 export type Elevator =
@@ -62,6 +64,14 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
           status: { $set: 'en-route' },
           elevatorRequestId: { $set: action.elevatorRequestId },
           requestedFloorIds: { $set: [action.floorId] },
+        },
+      });
+    }
+
+    case OPEN_ELEVATOR_DOORS: {
+      return update(state, {
+        [action.elevatorId]: {
+          doors: { $set: 'open' },
         },
       });
     }
