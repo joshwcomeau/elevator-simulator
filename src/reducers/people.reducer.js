@@ -1,6 +1,11 @@
 import { createSelector } from 'reselect';
 
-import { GENERATE_PERSON } from '../actions';
+import {
+  GENERATE_PERSON,
+  REQUEST_ELEVATOR,
+  JOIN_GROUP_WAITING_FOR_ELEVATOR,
+  FULFILL_ELEVATOR_REQUEST,
+} from '../actions';
 
 import type { Shape, Status } from '../components/Person/Person.types';
 import type { Action } from '../types';
@@ -23,7 +28,7 @@ type PeopleState = {
   [id: string]: Person,
 };
 
-const initialState = {};
+const initialState: PeopleState = {};
 
 export default function reducer(
   state: PeopleState = initialState,
@@ -37,6 +42,35 @@ export default function reducer(
         ...state,
         [id]: person,
       };
+    }
+
+    case REQUEST_ELEVATOR:
+    case JOIN_GROUP_WAITING_FOR_ELEVATOR: {
+      const { personId } = action;
+      const person = state[personId];
+
+      console.log(action);
+
+      console.log('nextState', {
+        ...state,
+        [personId]: {
+          ...person,
+          status: 'waiting-for-elevator',
+        },
+      });
+
+      return {
+        ...state,
+        [personId]: {
+          ...person,
+          status: 'waiting-for-elevator',
+        },
+      };
+    }
+
+    case FULFILL_ELEVATOR_REQUEST: {
+      // TODO: Find all the people on this elevator, going to this floor.
+      return state;
     }
 
     default:

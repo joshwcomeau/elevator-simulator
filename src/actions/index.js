@@ -8,6 +8,8 @@ import type { Direction } from '../types';
 // Action Types
 export const INITIALIZE_BUILDING = 'INITIALIZE_BUILDING';
 export const REQUEST_ELEVATOR = 'REQUEST_ELEVATOR';
+export const JOIN_GROUP_WAITING_FOR_ELEVATOR =
+  'JOIN_GROUP_WAITING_FOR_ELEVATOR';
 export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
@@ -23,8 +25,12 @@ export const initializeBuilding = (args: InitializeBuilding) => ({
   ...args,
 });
 
-type RequestElevator = { floorId: number, direction: Direction };
-export const requestElevator = ({ floorId, direction }: RequestElevator) => {
+type RequestElevator = {
+  personId: string,
+  floorId: number,
+  direction: Direction,
+};
+export const requestElevator = (args: RequestElevator) => {
   // Get a timestamp. Maybe this won't be useful in the end, but it seems neat
   // to be able to diagnose average request delays, in addition to person
   // wait times.
@@ -32,16 +38,27 @@ export const requestElevator = ({ floorId, direction }: RequestElevator) => {
 
   // Generate a unique ID for this request.
   // eg. '2-down-1508847804756`
-  const id = `${floorId}-${direction}-${Number(requestedAt)}`;
+  const id = `${args.floorId}-${args.direction}-${Number(requestedAt)}`;
 
   return {
     type: REQUEST_ELEVATOR,
     id,
-    floorId,
-    direction,
     requestedAt,
+    ...args,
   };
 };
+
+type JoinGroupWaitingForElevator = {
+  floorId: number,
+  personId: string,
+  direction: Direction,
+};
+export const joinGroupWaitingForElevator = (
+  args: JoinGroupWaitingForElevator
+) => ({
+  type: JOIN_GROUP_WAITING_FOR_ELEVATOR,
+  ...args,
+});
 
 type DispatchElevator = {
   elevatorId: number,

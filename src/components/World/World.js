@@ -59,6 +59,15 @@ class World extends PureComponent<Props> {
         }),
       500
     );
+
+    window.setTimeout(
+      () =>
+        generateRandomPerson({
+          floorId: 2,
+          destinationFloorId: 1,
+        }),
+      1800
+    );
   }
 
   componentWillUnmount() {

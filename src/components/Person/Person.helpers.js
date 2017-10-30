@@ -33,7 +33,7 @@ export const getRandomPersonAttrbutes = () => {
     shape: sample(SHAPES),
     color: sample(BODY_COLORS),
     patience: random(1, 10),
-    walkSpeed: random(5, 10), // / 10,
+    walkSpeed: random(5, 10) / 10,
   };
 };
 

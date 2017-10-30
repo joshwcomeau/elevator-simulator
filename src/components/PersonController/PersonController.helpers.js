@@ -1,6 +1,11 @@
 // @flow
 import type { Direction } from '../../types';
 
+export const getDirection = (
+  floorId: number,
+  destinationFloorId: number
+): Direction => (destinationFloorId > floorId ? 'up' : 'down');
+
 export const getButtonToPress = ({
   buttons,
   floorId,
@@ -17,7 +22,7 @@ export const getButtonToPress = ({
 
   // For other floors, we want the first button if we're going up, and
   // the second button if we're going down.
-  const direction: Direction = destinationFloorId > floorId ? 'up' : 'down';
+  const direction: Direction = getDirection(floorId, destinationFloorId);
 
   return direction === 'up' ? buttons[0] : buttons[1];
 };

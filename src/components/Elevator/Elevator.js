@@ -119,7 +119,6 @@ class Elevator extends PureComponent<Props, State> {
           <ElevatorCar>
             <LeftElevatorDoor isOpen={doors === 'open'} />
             <RightElevatorDoor isOpen={doors === 'open'} />
-            <ElevatorLight />
           </ElevatorCar>
         </ElevatorCarContainer>
       </ElevatorShaft>
@@ -176,22 +175,6 @@ const RightElevatorDoor = styled(ElevatorDoor)`
   right: 0;
   transform-origin: right;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-`;
-
-const ElevatorLight = styled.div`
-  position: absolute;
-  z-index: 1;
-  top: -15%;
-  left: 0;
-  right: 0;
-  bottom: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 239, 135, 1) 0%,
-    rgba(255, 219, 77, 0.87) 19%,
-    rgba(255, 255, 255, 0.55) 68%,
-    rgba(255, 255, 255, 0.5) 75%
-  );
 `;
 
 const mapStateToProps = (state, ownProps) => {

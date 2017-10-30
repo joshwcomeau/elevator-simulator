@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
-import { requestElevator } from '../../actions';
+import { requestElevator, joinGroupWaitingForElevator } from '../../actions';
+import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
+import { random } from '../../utils';
 
-import { getButtonToPress } from './PersonController.helpers';
+import { getButtonToPress, getDirection } from './PersonController.helpers';
 
 import type { ActionCreator, Direction } from '../../types';
 import type { Status } from '../Person/Person.types';
@@ -16,9 +18,11 @@ type Props = {
   floorId?: number,
   elevatorId?: number,
   destinationFloorId: number,
+  direction?: Direction,
   floorRef?: HTMLElement,
   elevatorRef?: HTMLElement,
   elevatorButtonRef?: HTMLElement,
+  isFloorAlreadyRequested: boolean,
   requestElevator: ActionCreator,
   handleBoardElevator: ActionCreator,
   handleDisembarkElevator: ActionCreator,
@@ -50,14 +54,22 @@ class PersonController extends PureComponent<Props, State> {
     this.setState({ destinationX });
   }
 
-  componentDidUpdate(_, prevState) {
-    const { status, requestElevator, floorId } = this.props;
-    const { currentX, destinationX } = this.state;
-
+  componentDidUpdate(prevProps, prevState) {
     if (prevState.destinationX !== this.state.destinationX) {
       window.cancelAnimationFrame(this.animationFrameId);
 
       this.moveTowardsDestinationX();
+    }
+
+    if (
+      prevProps.status === 'initialized' &&
+      this.props.status === 'waiting-for-elevator'
+    ) {
+      // If they just finished requesting an elevator (or joining a group that
+      // has), we want to move them a few steps back from the elevator buttons.
+      this.setState(state => ({
+        destinationX: state.destinationX - random(15, 50),
+      }));
     }
   }
 
@@ -99,22 +111,33 @@ class PersonController extends PureComponent<Props, State> {
 
   finishWalking = () => {
     const {
+      id,
       status,
       floorId,
       destinationFloorId,
       floorRef,
       elevatorButtonRef,
-      requestElevator,
+      isFloorAlreadyRequested,
     } = this.props;
 
     switch (status) {
       case 'initialized': {
         // We need to hit the right elevator button, and then fire off the
         // elevator request action.
-        // Hitting the button is surprisingly tricky; we have to work out where
-        // the arm needs to poke, which mixes the SVG ViewBox coordinates with
-        // the DOM BoundingBox coordinates.
-        //
+
+        // It's possible, though, that someone previously already requested
+        // the elevator going in the same direction on this floor. If so,
+        // we want to join the group
+        if (isFloorAlreadyRequested) {
+          joinGroupWaitingForElevator({
+            floorId: floorId,
+            personId: id,
+            direction: getDirection(floorId, destinationFloorId),
+          });
+
+          return;
+        }
+
         // Start by figuring out which button to press.
         const armPokeTarget = getButtonToPress({
           buttons: elevatorButtonRef.children,
@@ -124,8 +147,11 @@ class PersonController extends PureComponent<Props, State> {
 
         this.setState({ armPokeTarget });
 
-        break;
+        return;
       }
+
+      default:
+        break;
     }
   };
 
@@ -134,18 +160,11 @@ class PersonController extends PureComponent<Props, State> {
 
     const direction: Direction = destinationFloorId > floorId ? 'up' : 'down';
 
-    requestElevator({ floorId, direction });
+    requestElevator({ floorId, personId: this.props.id, direction });
   };
 
   render() {
-    const {
-      children,
-      status,
-      floorId,
-      elevatorId,
-      floorRef,
-      elevatorRef,
-    } = this.props;
+    const { children, floorRef, elevatorRef } = this.props;
     const { currentX, destinationX, armPokeTarget } = this.state;
 
     const renderTarget = floorRef || elevatorRef;
@@ -175,4 +194,22 @@ const PersonContainer = styled.div`
   bottom: 0;
 `;
 
-export default connect(null, { requestElevator })(PersonController);
+const mapStateToProps = (state, ownProps) => {
+  const { floorId, destinationFloorId } = ownProps;
+
+  // TODO: People on elevators don't have FloorIds and will need different data.
+
+  const floorDirection = destinationFloorId > floorId ? 'up' : 'down';
+
+  return {
+    isFloorAlreadyRequested: getElevatorRequestsArray(state).some(
+      request =>
+        request.floorId === floorId && request.direction === floorDirection
+    ),
+  };
+};
+
+export default connect(mapStateToProps, {
+  requestElevator,
+  joinGroupWaitingForElevator,
+})(PersonController);

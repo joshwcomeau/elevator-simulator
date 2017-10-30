@@ -6,6 +6,7 @@ import type { ReduxState, Action, Direction } from '../types';
 
 export type ElevatorRequest = {
   floorId: number,
+  peopleIds: Array<number>,
   direction: Direction,
   requestedAt: Date,
 };
@@ -20,6 +21,7 @@ export default function reducer(
 ) {
   switch (action.type) {
     case REQUEST_ELEVATOR: {
+      // Check to see if there's already
       return {
         ...state,
         [action.id]: {
@@ -29,6 +31,7 @@ export default function reducer(
         },
       };
     }
+
     default:
       return state;
   }
@@ -36,6 +39,7 @@ export default function reducer(
 
 // Selectors
 const getElevatorRequests = state => state.elevatorRequests;
+
 export const getElevatorRequestsArray = createSelector(
   getElevatorRequests,
   elevatorRequests => Object.values(elevatorRequests)
