@@ -49,16 +49,6 @@ export default function reducer(
       const { personId } = action;
       const person = state[personId];
 
-      console.log(action);
-
-      console.log('nextState', {
-        ...state,
-        [personId]: {
-          ...person,
-          status: 'waiting-for-elevator',
-        },
-      });
-
       return {
         ...state,
         [personId]: {

@@ -68,7 +68,7 @@ class PersonController extends PureComponent<Props, State> {
       // If they just finished requesting an elevator (or joining a group that
       // has), we want to move them a few steps back from the elevator buttons.
       this.setState(state => ({
-        destinationX: state.destinationX - random(15, 50),
+        destinationX: state.destinationX - random(5, 40),
       }));
     }
   }
@@ -115,9 +115,9 @@ class PersonController extends PureComponent<Props, State> {
       status,
       floorId,
       destinationFloorId,
-      floorRef,
       elevatorButtonRef,
       isFloorAlreadyRequested,
+      joinGroupWaitingForElevator,
     } = this.props;
 
     switch (status) {
