@@ -4,10 +4,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { initializeBuilding, generateRandomPerson } from '../../actions';
-import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
-import { random, range } from '../../utils';
+import { initializeBuilding, newPersonEntersBuilding } from '../../actions';
 import { getPeopleArray } from '../../reducers/people.reducer';
+import { getRandomPersonAttrbutes } from '../Person/Person.helpers';
 
 import Elevator from '../Elevator';
 import Floor from '../Floor';
@@ -26,7 +25,7 @@ type Props = {
   elevators: ElevatorsState,
   people: Array<PersonData>,
   initializeBuilding: ActionCreator,
-  generateRandomPerson: ActionCreator,
+  newPersonEntersBuilding: ActionCreator,
 };
 
 class World extends PureComponent<Props> {
@@ -44,7 +43,7 @@ class World extends PureComponent<Props> {
       numFloors,
       numElevators,
       initializeBuilding,
-      generateRandomPerson,
+      newPersonEntersBuilding,
     } = this.props;
 
     initializeBuilding({ numFloors, numElevators });
@@ -53,7 +52,8 @@ class World extends PureComponent<Props> {
     // We need to know the X offset for each elevator shaft,
     window.setTimeout(
       () =>
-        generateRandomPerson({
+        newPersonEntersBuilding({
+          ...getRandomPersonAttrbutes(),
           floorId: 2,
           destinationFloorId: 1,
         }),
@@ -62,7 +62,8 @@ class World extends PureComponent<Props> {
 
     window.setTimeout(
       () =>
-        generateRandomPerson({
+        newPersonEntersBuilding({
+          ...getRandomPersonAttrbutes(),
           floorId: 2,
           destinationFloorId: 1,
         }),
@@ -162,6 +163,6 @@ const mapStateToProps = state => ({
   people: getPeopleArray(state),
 });
 
-const mapDispatchToProps = { initializeBuilding, generateRandomPerson };
+const mapDispatchToProps = { initializeBuilding, newPersonEntersBuilding };
 
 export default connect(mapStateToProps, mapDispatchToProps)(World);

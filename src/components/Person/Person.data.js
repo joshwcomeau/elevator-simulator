@@ -28,3 +28,19 @@ export const BODY_COLORS = [
   COLORS.blue[500],
   COLORS.purple[500],
 ];
+
+// prettier-ignore
+export const FIRST_NAMES = [
+  'James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael',
+  'Elizabeth', 'William', 'Linda', 'David', 'Barbara', 'Richard', 'Susan',
+  'Joseph', 'Jessica', 'Thomas', 'Margaret', 'Charles', 'Sarah', 'Christopher',
+  'Karen', 'Daniel', 'Nancy', 'Matthew', 'Betty', 'Anthony', 'Lisa',
+]; // 28
+
+// prettier-ignore
+export const LAST_NAMES = [
+  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia',
+  'Rodriguez', 'Wilson', 'Martinez', 'Anderson', 'Taylor', 'Thomas',
+  'Hernandez', 'Moore', 'Martin', 'Jackson', 'Thompson', 'White', 'Lopez',
+  'Lee', 'Gonzalez', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Perez',
+]; // 29

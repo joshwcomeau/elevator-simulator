@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import {
-  GENERATE_PERSON,
+  NEW_PERSON_ENTERS_BUILDING,
   REQUEST_ELEVATOR,
   JOIN_GROUP_WAITING_FOR_ELEVATOR,
   FULFILL_ELEVATOR_REQUEST,
@@ -35,7 +35,7 @@ export default function reducer(
   action: Action
 ) {
   switch (action.type) {
-    case GENERATE_PERSON: {
+    case NEW_PERSON_ENTERS_BUILDING: {
       const { person, person: { id } } = action;
 
       return {

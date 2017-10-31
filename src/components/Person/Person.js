@@ -3,10 +3,14 @@ import React, { PureComponent } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import { COLORS } from '../../constants';
-import { requestAnimationFramePromise, setTimeoutPromise } from '../../utils';
+import {
+  requestAnimationFramePromise,
+  setTimeoutPromise,
+  calculateLineLength,
+} from '../../utils';
 
 import { PATHS, BODY_COLORS } from './Person.data';
-import { getDistanceToButton, calculateLineLength } from './Person.helpers';
+import { getDistanceToButton } from './Person.helpers';
 
 import type { Shape, Status } from './Person.types';
 

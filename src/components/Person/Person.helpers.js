@@ -1,23 +1,7 @@
 // @flow
 import { sample, random } from '../../utils';
 
-import { SHAPES, BODY_COLORS } from './Person.data';
-
-// prettier-ignore
-const FIRST_NAMES = [
-  'James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael',
-  'Elizabeth', 'William', 'Linda', 'David', 'Barbara', 'Richard', 'Susan',
-  'Joseph', 'Jessica', 'Thomas', 'Margaret', 'Charles', 'Sarah', 'Christopher',
-  'Karen', 'Daniel', 'Nancy', 'Matthew', 'Betty', 'Anthony', 'Lisa',
-]; // 28
-
-// prettier-ignore
-const LAST_NAMES = [
-  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia',
-  'Rodriguez', 'Wilson', 'Martinez', 'Anderson', 'Taylor', 'Thomas',
-  'Hernandez', 'Moore', 'Martin', 'Jackson', 'Thompson', 'White', 'Lopez',
-  'Lee', 'Gonzalez', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Perez',
-]; // 29
+import { SHAPES, BODY_COLORS, FIRST_NAMES, LAST_NAMES } from './Person.data';
 
 export const getRandomPersonAttrbutes = () => {
   const firstName = sample(FIRST_NAMES);
@@ -73,13 +57,3 @@ export const getDistanceToButton = ({
     y: distanceFromPerson.y * viewboxMultiplier,
   };
 };
-
-/**
- * Simple helper that uses the pythagorean theorem to calculate line length.
- */
-export const calculateLineLength = (
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-) => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));

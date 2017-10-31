@@ -105,3 +105,13 @@ export function requestAnimationFramePromise() {
 export function setTimeoutPromise(duration) {
   return new Promise(resolve => window.setTimeout(resolve, duration));
 }
+
+/**
+ * Simple helper that uses the pythagorean theorem to calculate line length.
+ */
+export const calculateLineLength = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+) => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
