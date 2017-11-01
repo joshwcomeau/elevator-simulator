@@ -7,7 +7,7 @@ import requestElevatorSaga from '../sagas/request-elevator.saga';
 import elevatorArrivesAtFloor from '../sagas/elevator-arrives-at-floor.saga';
 import DevTools from '../components/DevTools';
 
-export default function configureStore(initialState) {
+export default function configureStore(initialState: any) {
   // create the saga middleware
   const sagaMiddleware = createSagaMiddleware();
 

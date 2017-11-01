@@ -6,7 +6,7 @@ import rootReducer from '../reducers';
 import requestElevatorSaga from '../sagas/request-elevator.saga';
 import elevatorArrivesAtFloor from '../sagas/elevator-arrives-at-floor.saga';
 
-export default function configureStore(initialState) {
+export default function configureStore(initialState: any) {
   // create the saga middleware
   const sagaMiddleware = createSagaMiddleware();
 
