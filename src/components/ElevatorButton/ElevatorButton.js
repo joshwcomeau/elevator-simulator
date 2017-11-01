@@ -20,12 +20,12 @@ const ElevatorButton = ({ size, direction, isRequested }: Props) => {
 
   return (
     <ElevatorButtonElem size={size}>
-      <svg iconSize={iconSize}>
+      <ElevatorButtonIcon iconSize={iconSize}>
         <polygon
           points={polygonPoints}
           fill={isRequested ? COLORS.green[500] : COLORS.gray[300]}
         />
-      </svg>
+      </ElevatorButtonIcon>
     </ElevatorButtonElem>
   );
 };
