@@ -9,7 +9,7 @@ import {
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
 
-function* elevatorArrivesAtFloor(action) {
+function* handleElevatorArrivesAtFloor(action) {
   const { elevatorId, floorId } = action;
 
   const elevator = yield select(state => state.elevators[elevatorId]);
@@ -33,7 +33,7 @@ function* elevatorArrivesAtFloor(action) {
 }
 
 function* listener(): Generator<*, *, *> {
-  yield takeEvery(ELEVATOR_ARRIVES_AT_FLOOR, elevatorArrivesAtFloor);
+  yield takeEvery(ELEVATOR_ARRIVES_AT_FLOOR, handleElevatorArrivesAtFloor);
 }
 
 export default listener;

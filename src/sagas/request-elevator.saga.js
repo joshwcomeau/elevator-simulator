@@ -3,7 +3,7 @@ import { put, select, takeEvery } from 'redux-saga/effects';
 
 import { REQUEST_ELEVATOR, dispatchElevator } from '../actions';
 
-function* requestElevator(action) {
+function* handleRequestElevator(action) {
   // NOTE: The reducer receives this action, which creates the elevatorRequest.
   const elevatorRequest = yield select(
     state => state.elevatorRequests[action.id]
@@ -27,7 +27,7 @@ function* requestElevator(action) {
 }
 
 function* listener(): Generator<*, *, *> {
-  yield takeEvery(REQUEST_ELEVATOR, requestElevator);
+  yield takeEvery(REQUEST_ELEVATOR, handleRequestElevator);
 }
 
 export default listener;
