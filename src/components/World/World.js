@@ -69,6 +69,16 @@ class World extends PureComponent<Props> {
         }),
       1800
     );
+
+    window.setTimeout(
+      () =>
+        newPersonEntersBuilding({
+          ...getRandomPersonAttrbutes(),
+          floorId: 2,
+          destinationFloorId: 1,
+        }),
+      2600
+    );
   }
 
   componentWillUnmount() {

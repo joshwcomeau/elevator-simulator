@@ -23,6 +23,7 @@ type Props = {
   elevatorRef?: HTMLElement,
   elevatorButtonRef?: HTMLElement,
   isFloorAlreadyRequested: boolean,
+  numberOfFolksAlreadyWaiting: number,
   requestElevator: ActionCreator,
   handleBoardElevator: ActionCreator,
   handleDisembarkElevator: ActionCreator,
@@ -65,11 +66,20 @@ class PersonController extends PureComponent<Props, State> {
       prevProps.status === 'initialized' &&
       this.props.status === 'waiting-for-elevator'
     ) {
-      // If they just finished requesting an elevator (or joining a group that
-      // has), we want to move them a few steps back from the elevator buttons.
-      this.setState(state => ({
-        destinationX: state.destinationX - random(5, 40),
-      }));
+      // If we're waiting for the elevator, we want to form a neat orderly
+      // line beside the elevator, with everyone else who has requested it.
+      const offsetAmount = this.props.numberOfFolksAlreadyWaiting * 25;
+
+      // We also don't want to IMMEDIATELY waddle away after pressing the
+      // button; we want to wait a short amount of time.
+      // That said, if the elevator arrives in that gap, we don't need to go
+      // join the line, we can just file in. So, we'll cancel this timer if
+      // it stops being important.
+      this.nonCriticalTimeoutId = window.setTimeout(() => {
+        this.setState(state => ({
+          destinationX: state.destinationX - offsetAmount,
+        }));
+      }, 400);
     }
   }
 
@@ -194,19 +204,39 @@ const PersonContainer = styled.div`
   bottom: 0;
 `;
 
-const mapStateToProps = (state, ownProps) => {
+const getPropsForInitialFloor = (state, ownProps) => {
   const { floorId, destinationFloorId } = ownProps;
-
-  // TODO: People on elevators don't have FloorIds and will need different data.
 
   const floorDirection = destinationFloorId > floorId ? 'up' : 'down';
 
+  const preExistingElevatorRequest = getElevatorRequestsArray(state).find(
+    request =>
+      request.floorId === floorId && request.direction === floorDirection
+  );
+
+  const numberOfFolksAlreadyWaiting = preExistingElevatorRequest
+    ? preExistingElevatorRequest.peopleIds.length
+    : 0;
+
   return {
-    isFloorAlreadyRequested: getElevatorRequestsArray(state).some(
-      request =>
-        request.floorId === floorId && request.direction === floorDirection
-    ),
+    // Figure out if this person has to click the button or not.
+    isFloorAlreadyRequested: !!preExistingElevatorRequest,
+    numberOfFolksAlreadyWaiting,
   };
+};
+
+const mapStateToProps = (state, ownProps) => {
+  const { status } = ownProps;
+
+  // TODO: People on elevators don't have FloorIds and will need different data.
+  const isOnInitialFloor =
+    status === 'initialized' || status === 'waiting-for-elevator';
+
+  if (isOnInitialFloor) {
+    return getPropsForInitialFloor(state, ownProps);
+  }
+
+  return {};
 };
 
 export default connect(mapStateToProps, {

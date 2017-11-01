@@ -10,7 +10,7 @@ import {
 import type { Shape, Status } from '../components/Person/Person.types';
 import type { Action } from '../types';
 
-export type Person = {
+type BasePersonAttributes = {
   id: string,
   firstName: string,
   lastName: string,
@@ -18,11 +18,21 @@ export type Person = {
   shape: Shape,
   patience: number,
   walkSpeed: number,
-  floorId?: number,
-  elevatorId?: number,
   destinationFloorId: number,
   status: Status,
 };
+
+type PersonOnFloor = {
+  ...BasePersonAttributes,
+  floorId: number,
+};
+
+type PersonOnElevator = {
+  ...BasePersonAttributes,
+  elevatorId: number,
+};
+
+export type Person = PersonOnFloor | PersonOnElevator;
 
 type PeopleState = {
   [id: string]: Person,
