@@ -69,7 +69,12 @@ export const dispatchElevator = (args: DispatchElevator) => ({
   ...args,
 });
 
-type ElevatorArrivesAtFloor = { elevatorId: number, floorId: number };
+type ElevatorArrivesAtFloor = {
+  elevatorId: number,
+  floorId: number,
+  elevatorRequestId: string,
+  arrivedAt: Date,
+};
 export const elevatorArrivesAtFloor = (args: ElevatorArrivesAtFloor) => ({
   type: ELEVATOR_ARRIVES_AT_FLOOR,
   ...args,

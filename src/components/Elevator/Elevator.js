@@ -27,6 +27,7 @@ type Props = {
   numFloors: number,
   requestedFloorIds: Array<number>,
   elevatorSpeed: number,
+  elevatorRequestId?: string,
   refCapturer: RefCapturer,
   elevatorArrivesAtFloor: ActionCreator,
 };
@@ -78,6 +79,7 @@ class Elevator extends PureComponent<Props, State> {
     const {
       id,
       elevatorSpeed,
+      elevatorRequestId,
       requestedFloorIds,
       elevatorArrivesAtFloor,
     } = this.props;
@@ -90,7 +92,12 @@ class Elevator extends PureComponent<Props, State> {
     if (distanceToDestination <= elevatorSpeed) {
       this.setState({ currentY: destinationY });
 
-      elevatorArrivesAtFloor({ elevatorId: id, floorId: requestedFloorIds[0] });
+      elevatorArrivesAtFloor({
+        elevatorId: id,
+        floorId: requestedFloorIds[0],
+        elevatorRequestId,
+        arrivedAt: new Date(),
+      });
 
       return;
     }
@@ -185,6 +192,7 @@ const mapStateToProps = (state, ownProps) => {
     status: elevatorData.status,
     doors: elevatorData.doors,
     floorId: elevatorData.floorId,
+    elevatorRequestId: elevatorData.elevatorRequestId,
     requestedFloorIds: elevatorData.requestedFloorIds,
     numFloors: state.floors.length,
   };
