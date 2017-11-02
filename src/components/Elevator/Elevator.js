@@ -16,7 +16,7 @@ import {
 
 import { getElevatorOffset } from './Elevator.helpers';
 
-import type { ActionCreator } from '../../types';
+import type { ActionCreator, RefCapturer } from '../../types';
 import type { DoorStatus } from '../../reducers/elevators.reducer';
 
 type Props = {
@@ -27,6 +27,7 @@ type Props = {
   numFloors: number,
   requestedFloorIds: Array<number>,
   elevatorSpeed: number,
+  refCapturer: RefCapturer,
   elevatorArrivesAtFloor: ActionCreator,
 };
 
@@ -110,13 +111,13 @@ class Elevator extends PureComponent<Props, State> {
   };
 
   render() {
-    const { doors } = this.props;
+    const { doors, refCapturer } = this.props;
     const { currentY } = this.state;
 
     return (
       <ElevatorShaft innerRef={elem => (this.elem = elem)}>
         <ElevatorCarContainer style={{ transform: `translateY(${currentY}px` }}>
-          <ElevatorCar>
+          <ElevatorCar innerRef={refCapturer}>
             <LeftElevatorDoor isOpen={doors === 'open'} />
             <RightElevatorDoor isOpen={doors === 'open'} />
           </ElevatorCar>
@@ -133,7 +134,7 @@ const ElevatorShaft = styled.div`
 
 const ElevatorCarContainer = styled.div`
   width: ${ELEVATOR_SHAFT_WIDTH}px;
-  height: ${FLOOR_HEIGHT}px;
+  height: ${FLOOR_HEIGHT - 6}px;
 `;
 
 const ElevatorCar = styled.div`

@@ -11,7 +11,8 @@ export const JOIN_GROUP_WAITING_FOR_ELEVATOR =
 export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
-export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
+export const START_BOARDING_ELEVATOR = 'START_BOARDING_ELEVATOR';
+export const FINISH_BOARDING_ELEVATOR = 'FINISH_BOARDING_ELEVATOR';
 export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
 export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
@@ -80,15 +81,27 @@ export const openElevatorDoors = (args: OpenElevatorDoors) => ({
   ...args,
 });
 
-type FulfillElevatorRequest = {
-  elevatorId: number,
-  floorId: number,
-  elevatorRequestId: string,
-};
-export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
-  type: FULFILL_ELEVATOR_REQUEST,
+type StartBoardingElevator = { peopleIds: Array<string>, elevatorId: number };
+export const startBoardingElevator = (args: StartBoardingElevator) => ({
+  type: START_BOARDING_ELEVATOR,
   ...args,
 });
+
+type FinishBoardingElevator = { personId: string };
+export const finishBoardingElevator = (args: FinishBoardingElevator) => ({
+  type: FINISH_BOARDING_ELEVATOR,
+  ...args,
+});
+
+// type FulfillElevatorRequest = {
+//   elevatorId: number,
+//   floorId: number,
+//   elevatorRequestId: string,
+// };
+// export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
+//   type: FULFILL_ELEVATOR_REQUEST,
+//   ...args,
+// });
 
 type NewPersonEntersBuilding = {
   id: string,

@@ -4,7 +4,8 @@ import {
   NEW_PERSON_ENTERS_BUILDING,
   REQUEST_ELEVATOR,
   JOIN_GROUP_WAITING_FOR_ELEVATOR,
-  FULFILL_ELEVATOR_REQUEST,
+  START_BOARDING_ELEVATOR,
+  FINISH_BOARDING_ELEVATOR,
 } from '../actions';
 
 import type { Shape, Status } from '../components/Person/Person.types';
@@ -32,7 +33,13 @@ type PersonOnElevator = {
   elevatorId: number,
 };
 
-export type Person = PersonOnFloor | PersonOnElevator;
+type PersonBoardingElevator = {
+  ...BasePersonAttributes,
+  floorId: number,
+  elevatorId: number,
+};
+
+export type Person = PersonOnFloor | PersonBoardingElevator | PersonOnElevator;
 
 type PeopleState = {
   [id: string]: Person,
@@ -68,9 +75,35 @@ export default function reducer(
       };
     }
 
-    case FULFILL_ELEVATOR_REQUEST: {
-      // TODO: Find all the people on this elevator, going to this floor.
-      return state;
+    case START_BOARDING_ELEVATOR: {
+      const { peopleIds, elevatorId } = action;
+
+      const stateCopy = { ...state };
+
+      return peopleIds.reduce(
+        (newState, id) => ({
+          ...newState,
+          [id]: {
+            ...state[id],
+            elevatorId,
+            status: 'boarding-elevator',
+          },
+        }),
+        stateCopy
+      );
+    }
+
+    case FINISH_BOARDING_ELEVATOR: {
+      const { personId } = action;
+
+      return {
+        ...state,
+        [personId]: {
+          ...state[personId],
+          floorId: null,
+          status: 'riding-elevator',
+        },
+      };
     }
 
     default:

@@ -120,7 +120,7 @@ class World extends PureComponent<Props> {
             <Elevator
               key={elevator.id}
               id={elevator.id}
-              innerRef={elem => {
+              refCapturer={elem => {
                 this.elevatorRefs[elevator.id] = elem;
               }}
             />
@@ -133,7 +133,9 @@ class World extends PureComponent<Props> {
               key={floor.id}
               id={floor.id}
               numElevators={elevators.length}
-              floorRefCapturer={elem => (this.floorRefs[floor.id] = elem)}
+              refCapturer={elem => {
+                this.floorRefs[floor.id] = elem;
+              }}
               elevatorButtonsRefCapturer={elem =>
                 (this.buttonRefs[floor.id] = elem)}
             />

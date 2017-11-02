@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
-import { requestElevator, joinGroupWaitingForElevator } from '../../actions';
+import {
+  requestElevator,
+  joinGroupWaitingForElevator,
+  finishBoardingElevator,
+} from '../../actions';
+import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
 import { random } from '../../utils';
 
@@ -81,6 +86,45 @@ class PersonController extends PureComponent<Props, State> {
         }));
       }, 400);
     }
+
+    if (
+      prevProps.status === 'waiting-for-elevator' &&
+      this.props.status === 'boarding-elevator'
+    ) {
+      if (!this.props.elevatorRef) {
+        throw new Error(
+          'Started trying to board elevator, but no elevator ref was supplied'
+        );
+      }
+      // march our little fella towards the center of the elevator doors
+      const elevatorBox = this.props.elevatorRef.getBoundingClientRect();
+
+      const offsetAmount =
+        elevatorBox.left + elevatorBox.width / 2 - this.props.size / 2;
+      this.setState({
+        destinationX: offsetAmount,
+      });
+    }
+
+    if (
+      prevProps.status === 'boarding-elevator' &&
+      this.props.status === 'riding-elevator'
+    ) {
+      // Center the person within the elevator. This will be their NEW origin,
+      // so that their on-screen position doesn't change.
+      const offsetAmount = ELEVATOR_SHAFT_WIDTH / 2 - this.props.size / 2;
+
+      // To avoid having everyone standing on top of each other, we'll shuffle
+      // people a little bit
+      const destinationX = random(
+        offsetAmount - ELEVATOR_SHAFT_WIDTH / 4,
+        offsetAmount + ELEVATOR_SHAFT_WIDTH / 4
+      );
+      this.setState({
+        currentX: offsetAmount,
+        destinationX,
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -128,6 +172,7 @@ class PersonController extends PureComponent<Props, State> {
       elevatorButtonRef,
       isFloorAlreadyRequested,
       joinGroupWaitingForElevator,
+      finishBoardingElevator,
     } = this.props;
 
     switch (status) {
@@ -158,6 +203,11 @@ class PersonController extends PureComponent<Props, State> {
         this.setState({ armPokeTarget });
 
         return;
+      }
+
+      case 'boarding-elevator': {
+        console.log(this.props.id, 'boarding elevator');
+        finishBoardingElevator({ personId: id });
       }
 
       default:
@@ -242,4 +292,5 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
   requestElevator,
   joinGroupWaitingForElevator,
+  finishBoardingElevator,
 })(PersonController);

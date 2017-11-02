@@ -18,14 +18,14 @@ import type { RefCapturer } from '../../types';
 type Props = {
   id: number,
   numElevators: number,
-  floorRefCapturer: RefCapturer,
+  refCapturer: RefCapturer,
   elevatorButtonsRefCapturer: RefCapturer,
 };
 
 const Floor = ({
   id,
   numElevators,
-  floorRefCapturer,
+  refCapturer,
   elevatorButtonsRefCapturer,
 }: Props) => {
   // Our Floor consists of a main waiting area, and spacers that "block" the
@@ -41,7 +41,7 @@ const Floor = ({
         {range(numElevators).map(() => <ElevatorSpacer />)}
       </FloorElevatorLayer>
 
-      <FloorPeopleLayer innerRef={floorRefCapturer} />
+      <FloorPeopleLayer innerRef={refCapturer} />
     </FloorElem>
   );
 };
