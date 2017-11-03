@@ -1,10 +1,12 @@
 // @flow
 import { delay } from 'redux-saga';
-import { put, select, takeEvery } from 'redux-saga/effects';
+import { take, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   ELEVATOR_ARRIVES_AT_FLOOR,
+  FINISH_BOARDING_ELEVATOR,
   openElevatorDoors,
+  closeElevatorDoors,
   startBoardingElevator,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
@@ -40,7 +42,18 @@ function* handleElevatorArrivesAtFloor(action) {
         elevatorId: elevator.id,
       })
     );
+
+    // We want to wait until the final person has finished boarding the
+    // elevator. Thankfully, we know how many folks we're waiting for!
+    let peopleRemaining = peopleIds.length;
+    while (peopleRemaining) {
+      yield take(FINISH_BOARDING_ELEVATOR);
+      peopleRemaining--;
+    }
   }
+
+  // Close the doors, let's get this show on the road!
+  yield put(closeElevatorDoors({ elevatorId }));
 }
 
 function* listener(): Generator<*, *, *> {

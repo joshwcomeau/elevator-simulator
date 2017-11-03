@@ -3,6 +3,7 @@ import update from 'immutability-helper';
 import {
   INITIALIZE_BUILDING,
   OPEN_ELEVATOR_DOORS,
+  CLOSE_ELEVATOR_DOORS,
   DISPATCH_ELEVATOR,
 } from '../actions';
 import { range } from '../utils';
@@ -72,6 +73,14 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       return update(state, {
         [action.elevatorId]: {
           doors: { $set: 'open' },
+        },
+      });
+    }
+
+    case CLOSE_ELEVATOR_DOORS: {
+      return update(state, {
+        [action.elevatorId]: {
+          doors: { $set: 'closed' },
         },
       });
     }

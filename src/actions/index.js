@@ -11,6 +11,7 @@ export const JOIN_GROUP_WAITING_FOR_ELEVATOR =
 export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
+export const CLOSE_ELEVATOR_DOORS = 'CLOSE_ELEVATOR_DOORS';
 export const START_BOARDING_ELEVATOR = 'START_BOARDING_ELEVATOR';
 export const FINISH_BOARDING_ELEVATOR = 'FINISH_BOARDING_ELEVATOR';
 export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
@@ -83,6 +84,12 @@ export const elevatorArrivesAtFloor = (args: ElevatorArrivesAtFloor) => ({
 type OpenElevatorDoors = { elevatorId: number };
 export const openElevatorDoors = (args: OpenElevatorDoors) => ({
   type: OPEN_ELEVATOR_DOORS,
+  ...args,
+});
+
+type CloseElevatorDoors = { elevatorId: number };
+export const closeElevatorDoors = (args: CloseElevatorDoors) => ({
+  type: CLOSE_ELEVATOR_DOORS,
   ...args,
 });
 
