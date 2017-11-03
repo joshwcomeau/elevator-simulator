@@ -14,6 +14,7 @@ export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const CLOSE_ELEVATOR_DOORS = 'CLOSE_ELEVATOR_DOORS';
 export const START_BOARDING_ELEVATOR = 'START_BOARDING_ELEVATOR';
 export const FINISH_BOARDING_ELEVATOR = 'FINISH_BOARDING_ELEVATOR';
+export const MOVE_ELEVATOR = 'MOVE_ELEVATOR';
 export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
 export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
@@ -99,9 +100,19 @@ export const startBoardingElevator = (args: StartBoardingElevator) => ({
   ...args,
 });
 
-type FinishBoardingElevator = { personId: string };
+type FinishBoardingElevator = {
+  personId: string,
+  elevatorId: number,
+  destinationFloorId: number,
+};
 export const finishBoardingElevator = (args: FinishBoardingElevator) => ({
   type: FINISH_BOARDING_ELEVATOR,
+  ...args,
+});
+
+type MoveElevator = { elevatorId: number, floorId: number };
+export const moveElevator = (args: MoveElevator) => ({
+  type: MOVE_ELEVATOR,
   ...args,
 });
 

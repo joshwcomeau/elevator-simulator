@@ -54,7 +54,8 @@ class PersonController extends PureComponent<Props, State> {
 
     // When a person mounts, their first order of business is to march towards
     // the elevator buttons on their floor.
-    const buttonPosition = elevatorButtonRef.children[0].getBoundingClientRect();
+    const [firstButton] = elevatorButtonRef.children;
+    const buttonPosition = firstButton.getBoundingClientRect();
     const destinationX = buttonPosition.left + buttonPosition.width / 2 - size;
 
     this.setState({ destinationX });
@@ -168,6 +169,7 @@ class PersonController extends PureComponent<Props, State> {
       id,
       status,
       floorId,
+      elevatorId,
       destinationFloorId,
       elevatorButtonRef,
       isFloorAlreadyRequested,
@@ -206,8 +208,11 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'boarding-elevator': {
-        console.log(this.props.id, 'boarding elevator');
-        finishBoardingElevator({ personId: id });
+        finishBoardingElevator({
+          personId: id,
+          elevatorId,
+          destinationFloorId,
+        });
       }
 
       default:

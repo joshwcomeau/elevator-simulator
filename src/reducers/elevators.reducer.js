@@ -2,11 +2,14 @@
 import update from 'immutability-helper';
 import {
   INITIALIZE_BUILDING,
-  OPEN_ELEVATOR_DOORS,
-  CLOSE_ELEVATOR_DOORS,
   DISPATCH_ELEVATOR,
+  ELEVATOR_ARRIVES_AT_FLOOR,
+  OPEN_ELEVATOR_DOORS,
+  FINISH_BOARDING_ELEVATOR,
+  CLOSE_ELEVATOR_DOORS,
+  MOVE_ELEVATOR,
 } from '../actions';
-import { range } from '../utils';
+import { range, mergeUnique } from '../utils';
 
 import type { Action } from '../types';
 
@@ -69,6 +72,15 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       });
     }
 
+    case ELEVATOR_ARRIVES_AT_FLOOR: {
+      return update(state, {
+        [action.elevatorId]: {
+          status: { $set: 'boarding-disembarking' },
+          requestedFloorIds: { $apply: floorIds => floorIds.slice(1) },
+        },
+      });
+    }
+
     case OPEN_ELEVATOR_DOORS: {
       return update(state, {
         [action.elevatorId]: {
@@ -77,10 +89,29 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       });
     }
 
+    case FINISH_BOARDING_ELEVATOR: {
+      return update(state, {
+        [action.elevatorId]: {
+          requestedFloorIds: {
+            $apply: floorIds =>
+              mergeUnique(floorIds, [action.destinationFloorId]),
+          },
+        },
+      });
+    }
+
     case CLOSE_ELEVATOR_DOORS: {
       return update(state, {
         [action.elevatorId]: {
           doors: { $set: 'closed' },
+        },
+      });
+    }
+
+    case MOVE_ELEVATOR: {
+      return update(state, {
+        [action.elevatorId]: {
+          status: { $set: 'en-route' },
         },
       });
     }

@@ -8,6 +8,7 @@ import {
   openElevatorDoors,
   closeElevatorDoors,
   startBoardingElevator,
+  moveElevator,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
 
@@ -54,6 +55,19 @@ function* handleElevatorArrivesAtFloor(action) {
 
   // Close the doors, let's get this show on the road!
   yield put(closeElevatorDoors({ elevatorId }));
+  yield delay(ELEVATOR_DOOR_TRANSITION_LENGTH);
+
+  // Figure out which floor we should move to.
+  // Get the updated list of stops.
+  const requestedFloorIds = yield select(
+    state => state.elevators[elevatorId].requestedFloorIds
+  );
+
+  // Figure out the next stop
+  // TODO: This shouldn't just be a FIFO list; it should sort them so that
+  // it moves in a logical order & ignores requests in the opposite direction
+  const nextStopFloorId = requestedFloorIds[0];
+  yield put(moveElevator({ elevatorId, floorId: nextStopFloorId }));
 }
 
 function* listener(): Generator<*, *, *> {
