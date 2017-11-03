@@ -126,6 +126,24 @@ class PersonController extends PureComponent<Props, State> {
         destinationX,
       });
     }
+
+    if (
+      prevProps.status === 'riding-elevator' &&
+      this.props.status === 'arrived-at-destination'
+    ) {
+      // We need to do the opposite of the boarding->riding transition, and
+      // move this fella from the elevator DOM container to the new floor.
+      const elevatorBox = prevProps.elevatorRef.getBoundingClientRect();
+      const floorBox = this.props.floorRef.getBoundingClientRect();
+
+      const offsetAmount =
+        elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - this.props.size / 2;
+
+      this.setState({
+        currentX: offsetAmount,
+        destinationX: floorBox.left + 50,
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -213,6 +231,8 @@ class PersonController extends PureComponent<Props, State> {
           elevatorId,
           destinationFloorId,
         });
+
+        return;
       }
 
       default:

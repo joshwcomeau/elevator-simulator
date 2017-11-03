@@ -1,11 +1,13 @@
 // @flow
 import update from 'immutability-helper';
+
 import {
   INITIALIZE_BUILDING,
   DISPATCH_ELEVATOR,
   ELEVATOR_ARRIVES_AT_FLOOR,
   OPEN_ELEVATOR_DOORS,
   FINISH_BOARDING_ELEVATOR,
+  FULFILL_ELEVATOR_REQUEST,
   CLOSE_ELEVATOR_DOORS,
   MOVE_ELEVATOR,
 } from '../actions';
@@ -96,6 +98,14 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
             $apply: floorIds =>
               mergeUnique(floorIds, [action.destinationFloorId]),
           },
+        },
+      });
+    }
+
+    case FULFILL_ELEVATOR_REQUEST: {
+      return update(state, {
+        [action.elevatorId]: {
+          elevatorRequestId: { $set: null },
         },
       });
     }

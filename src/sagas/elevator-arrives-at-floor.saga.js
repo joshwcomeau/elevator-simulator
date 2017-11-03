@@ -6,27 +6,53 @@ import {
   ELEVATOR_ARRIVES_AT_FLOOR,
   FINISH_BOARDING_ELEVATOR,
   openElevatorDoors,
+  fulfillElevatorRequest,
   closeElevatorDoors,
   startBoardingElevator,
   moveElevator,
+  exitFromElevator,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
+import { getPeopleExitingElevatorFactory } from '../reducers/people.reducer';
 
+// Main Saga handler
 function* handleElevatorArrivesAtFloor(action) {
   const { elevatorId, floorId } = action;
 
   const elevator = yield select(state => state.elevators[elevatorId]);
+  const { elevatorRequestId } = elevator;
 
   // Start by opening the elevator doors.
   yield put(openElevatorDoors({ elevatorId }));
   yield delay(ELEVATOR_DOOR_TRANSITION_LENGTH);
 
+  if (elevatorRequestId) {
+    // At this point, the request is considered "fulfilled"; the elevator has
+    // arrived at the requested floor, and the doors have opened.
+    yield put(
+      fulfillElevatorRequest({
+        elevatorId,
+        elevatorRequestId,
+        resolvedAt: new Date(),
+      })
+    );
+  }
+
   // We know that our elevator will have just switched from 'en-route', to
   // fulfill an elevator request, or drop off some passengers, or both.
 
-  // TODO: Start by checking if there are passengers on this elevator, and disembark
+  // Start by checking if there are passengers on this elevator, and disembark
   // them. Add some delay so that the folks already on the floor ARE POLITE AND
   // DON'T TRY PUSHING THROUGH THEM.
+  const peopleDisembarking = yield select(
+    getPeopleExitingElevatorFactory(elevatorId, floorId)
+  );
+
+  for (const person of peopleDisembarking) {
+    yield put(exitFromElevator({ personId: person.id }));
+    yield delay(300);
+  }
+
   //
   // Next, check if this elevator is fulfilling a request.
   // If so, board the folks waiting.

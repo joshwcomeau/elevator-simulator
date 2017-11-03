@@ -1,9 +1,11 @@
 // @flow
 import { createSelector } from 'reselect';
+import update from 'immutability-helper';
+
 import {
   REQUEST_ELEVATOR,
   JOIN_GROUP_WAITING_FOR_ELEVATOR,
-  ELEVATOR_ARRIVES_AT_FLOOR,
+  FULFILL_ELEVATOR_REQUEST,
 } from '../actions';
 
 import type { ReduxState, Action, Direction } from '../types';
@@ -63,16 +65,14 @@ export default function reducer(
         return state;
       }
 
-      return {
-        ...state,
+      return update(state, {
         [requestId]: {
-          ...request,
-          peopleIds: [...request.peopleIds, action.personId],
+          peopleIds: { $push: [action.personId] },
         },
-      };
+      });
     }
 
-    case ELEVATOR_ARRIVES_AT_FLOOR: {
+    case FULFILL_ELEVATOR_REQUEST: {
       // There may be a request for the elevator at this floor.
       // If so, mark it as resolved.
       //
@@ -80,19 +80,11 @@ export default function reducer(
       // The only thing we care about is the delta between request and resolve.
       // Should have a saga that does this precalculation, and maybe a different
       // reducer, all about 'efficiency metrics', can store it?
-      const { elevatorRequestId, arrivedAt } = action;
-
-      if (!elevatorRequestId) {
-        return state;
-      }
-
-      return {
-        ...state,
-        [elevatorRequestId]: {
-          ...state[elevatorRequestId],
-          resolvedAt: arrivedAt,
+      return update(state, {
+        [action.elevatorRequestId]: {
+          resolvedAt: { $set: action.resolvedAt },
         },
-      };
+      });
     }
 
     default:

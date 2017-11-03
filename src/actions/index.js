@@ -12,9 +12,12 @@ export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const CLOSE_ELEVATOR_DOORS = 'CLOSE_ELEVATOR_DOORS';
+// TODO: Better names for these next 2 actions. It's not an API call :/
 export const START_BOARDING_ELEVATOR = 'START_BOARDING_ELEVATOR';
 export const FINISH_BOARDING_ELEVATOR = 'FINISH_BOARDING_ELEVATOR';
+export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
 export const MOVE_ELEVATOR = 'MOVE_ELEVATOR';
+export const EXIT_FROM_ELEVATOR = 'EXIT_FROM_ELEVATOR';
 export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
 export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
@@ -75,7 +78,6 @@ type ElevatorArrivesAtFloor = {
   elevatorId: number,
   floorId: number,
   elevatorRequestId: string,
-  arrivedAt: Date,
 };
 export const elevatorArrivesAtFloor = (args: ElevatorArrivesAtFloor) => ({
   type: ELEVATOR_ARRIVES_AT_FLOOR,
@@ -116,15 +118,21 @@ export const moveElevator = (args: MoveElevator) => ({
   ...args,
 });
 
-// type FulfillElevatorRequest = {
-//   elevatorId: number,
-//   floorId: number,
-//   elevatorRequestId: string,
-// };
-// export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
-//   type: FULFILL_ELEVATOR_REQUEST,
-//   ...args,
-// });
+type ExitFromElevator = { personId: string };
+export const exitFromElevator = (args: ExitFromElevator) => ({
+  type: EXIT_FROM_ELEVATOR,
+  ...args,
+});
+
+type FulfillElevatorRequest = {
+  elevatorId: number,
+  elevatorRequestId: string,
+  resolvedAt: Date,
+};
+export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
+  type: FULFILL_ELEVATOR_REQUEST,
+  ...args,
+});
 
 type NewPersonEntersBuilding = {
   id: string,

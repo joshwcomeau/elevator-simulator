@@ -96,7 +96,6 @@ class Elevator extends PureComponent<Props, State> {
         elevatorId: id,
         floorId: requestedFloorIds[0],
         elevatorRequestId,
-        arrivedAt: new Date(),
       });
 
       return;

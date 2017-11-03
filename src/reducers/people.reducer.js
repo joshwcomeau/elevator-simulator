@@ -6,6 +6,7 @@ import {
   JOIN_GROUP_WAITING_FOR_ELEVATOR,
   START_BOARDING_ELEVATOR,
   FINISH_BOARDING_ELEVATOR,
+  EXIT_FROM_ELEVATOR,
 } from '../actions';
 
 import type { Shape, Status } from '../components/Person/Person.types';
@@ -106,6 +107,24 @@ export default function reducer(
       };
     }
 
+    case EXIT_FROM_ELEVATOR: {
+      const { personId } = action;
+
+      const person = state[personId];
+
+      // If the person is exiting the elevator, I'm assuming that they've
+      // arrived at their destination floor.
+      return {
+        ...state,
+        [personId]: {
+          ...person,
+          floorId: person.destinationFloorId,
+          elevatorId: null,
+          status: 'arrived-at-destination',
+        },
+      };
+    }
+
     default:
       return state;
   }
@@ -117,3 +136,26 @@ export const getPeopleArray = createSelector(
   getPeople,
   people => Object.values(people)
 );
+
+export const getPeopleOnElevatorFactory = (elevatorId: number) => state => {
+  const peopleArray = getPeopleArray(state);
+
+  return peopleArray.filter(
+    person =>
+      person.status === 'riding-elevator' && person.elevatorId === elevatorId
+  );
+};
+
+export const getPeopleExitingElevatorFactory = (
+  elevatorId: number,
+  destinationFloorId: number
+) => state => {
+  const peopleArray = getPeopleArray(state);
+
+  return peopleArray.filter(
+    person =>
+      person.status === 'riding-elevator' &&
+      person.elevatorId === elevatorId &&
+      person.destinationFloorId === destinationFloorId
+  );
+};
