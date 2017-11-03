@@ -116,3 +116,12 @@ export const getElevatorRequestsByFloor = (
 
   return requestsArray.filter(request => floorId === request.floorId);
 };
+
+export const getActiveElevatorRequestsByFloor = (
+  floorId: number,
+  state: ReduxState
+) => {
+  return getElevatorRequestsByFloor(floorId, state).filter(
+    request => !request.resolvedAt
+  );
+};

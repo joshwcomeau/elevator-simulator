@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { COLORS } from '../../constants';
-import { getElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
+import { getActiveElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
 
 import ElevatorButton from '../ElevatorButton';
 
@@ -70,7 +70,7 @@ const mapStateToProps = (state, { floorId }) => {
 
   const floor = floors[floorId];
 
-  const requestsForThisFloor = getElevatorRequestsByFloor(floorId, state);
+  const requestsForThisFloor = getActiveElevatorRequestsByFloor(floorId, state);
 
   const isBottomFloor = floorId === 0;
   const isTopFloor = floorId === floors.length - 1;
