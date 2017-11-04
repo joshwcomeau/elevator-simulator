@@ -6,4 +6,4 @@ export type Status =
   | 'waiting-for-elevator'
   | 'boarding-elevator'
   | 'riding-elevator'
-  | 'exiting-elevator';
+  | 'arrived-at-destination';

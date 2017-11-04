@@ -10,7 +10,7 @@ import {
 } from '../actions';
 
 import type { Shape, Status } from '../components/Person/Person.types';
-import type { Action } from '../types';
+import type { Action, PersonElevatorPosition } from '../types';
 
 type BasePersonAttributes = {
   id: string,
@@ -32,12 +32,14 @@ type PersonOnFloor = {
 type PersonOnElevator = {
   ...BasePersonAttributes,
   elevatorId: number,
+  positionWithinElevator: PersonElevatorPositions,
 };
 
 type PersonBoardingElevator = {
   ...BasePersonAttributes,
   floorId: number,
   elevatorId: number,
+  positionWithinElevator: PersonElevatorPositions,
 };
 
 export type Person = PersonOnFloor | PersonBoardingElevator | PersonOnElevator;
@@ -95,7 +97,14 @@ export default function reducer(
     }
 
     case FINISH_BOARDING_ELEVATOR: {
-      const { personId } = action;
+      const { personId, numberOfFolksAlreadyOnElevator } = action;
+
+      console.log('Finish', action);
+
+      // A person's elevator position is an enum of -1, 0, 1.
+      // the `0` position is right in the middle.
+      const elevatorPosition: PersonElevatorPosition =
+        numberOfFolksAlreadyOnElevator % 3 - 1;
 
       return {
         ...state,
@@ -103,6 +112,7 @@ export default function reducer(
           ...state[personId],
           floorId: null,
           status: 'riding-elevator',
+          elevatorPosition,
         },
       };
     }

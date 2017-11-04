@@ -106,6 +106,7 @@ type FinishBoardingElevator = {
   personId: string,
   elevatorId: number,
   destinationFloorId: number,
+  numberOfFolksAlreadyOnElevator: number,
 };
 export const finishBoardingElevator = (args: FinishBoardingElevator) => ({
   type: FINISH_BOARDING_ELEVATOR,

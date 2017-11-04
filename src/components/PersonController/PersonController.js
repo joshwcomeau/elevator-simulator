@@ -9,33 +9,50 @@ import {
   finishBoardingElevator,
 } from '../../actions';
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
+import { getPersonElevatorPositionOffset } from '../Elevator/Elevator.helpers';
 import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
 import { getPeopleOnElevatorFactory } from '../../reducers/people.reducer';
 import { random } from '../../utils';
 
 import { getButtonToPress, getDirection } from './PersonController.helpers';
 
-import type { ActionCreator, Direction } from '../../types';
+import type {
+  ActionCreator,
+  Direction,
+  PersonElevatorPosition,
+} from '../../types';
 import type { Status } from '../Person/Person.types';
 
-type Props = {
+type Props = {|
+  // Person attributes
   status: Status,
   size: number,
   floorId?: number,
   elevatorId?: number,
   destinationFloorId: number,
   direction?: Direction,
+  elevatorPosition?: PersonElevatorPosition,
+
+  // HTML element references, for when the person needs to move relative to
+  // something in the DOM
   floorRef?: HTMLElement,
   elevatorRef?: HTMLElement,
   elevatorButtonRef?: HTMLElement,
+  // Various environment statuses
   isFloorAlreadyRequested: boolean,
   numberOfFolksAlreadyWaiting: number,
+  numberOfFolksAlreadyOnElevator: number,
+  // Actions
   requestElevator: ActionCreator,
-  handleBoardElevator: ActionCreator,
-  handleDisembarkElevator: ActionCreator,
-  personElevatorPosition?: 0 | 1 | 2,
-  children: any,
-};
+  joinGroupWaitingForElevator: ActionCreator,
+  finishBoardingElevator: ActionCreator,
+  // Uses function-as-children to pass data down to the underlying Person
+  children: (data: {
+    isWalking: boolean,
+    armPokeTarget?: HTMLElement,
+    handleElevatorRequest: ActionCreator,
+  }) => React.Node,
+|};
 
 type State = {
   currentX: number,
@@ -45,8 +62,8 @@ type State = {
 
 class PersonController extends PureComponent<Props, State> {
   state = {
-    currentX: 0,
-    destinationX: 0,
+    currentX: 100, // TEMP
+    destinationX: 100, // TEMP
   };
 
   animationFrameId: number;
@@ -63,20 +80,14 @@ class PersonController extends PureComponent<Props, State> {
     this.setState({ destinationX });
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.destinationX !== this.state.destinationX) {
-      window.cancelAnimationFrame(this.animationFrameId);
-
-      this.moveTowardsDestinationX();
-    }
-
+  componentWillReceiveProps(nextProps) {
     if (
-      prevProps.status === 'initialized' &&
-      this.props.status === 'waiting-for-elevator'
+      this.props.status === 'initialized' &&
+      nextProps.status === 'waiting-for-elevator'
     ) {
       // If we're waiting for the elevator, we want to form a neat orderly
       // line beside the elevator, with everyone else who has requested it.
-      const offsetAmount = this.props.numberOfFolksAlreadyWaiting * 25;
+      const offsetAmount = nextProps.numberOfFolksAlreadyWaiting * 25;
 
       // We also don't want to IMMEDIATELY waddle away after pressing the
       // button; we want to wait a short amount of time.
@@ -91,56 +102,74 @@ class PersonController extends PureComponent<Props, State> {
     }
 
     if (
-      prevProps.status === 'waiting-for-elevator' &&
-      this.props.status === 'boarding-elevator'
+      this.props.status === 'waiting-for-elevator' &&
+      nextProps.status === 'boarding-elevator'
     ) {
-      if (!this.props.elevatorRef) {
+      if (!nextProps.elevatorRef) {
         throw new Error(
           'Started trying to board elevator, but no elevator ref was supplied'
         );
       }
       // march our little fella towards the center of the elevator doors
-      const elevatorBox = this.props.elevatorRef.getBoundingClientRect();
+      const elevatorBox = nextProps.elevatorRef.getBoundingClientRect();
 
       const offsetAmount =
-        elevatorBox.left + elevatorBox.width / 2 - this.props.size / 2;
+        elevatorBox.left + elevatorBox.width / 2 - nextProps.size / 2;
+
       this.setState({
         destinationX: offsetAmount,
       });
     }
 
     if (
-      prevProps.status === 'boarding-elevator' &&
-      this.props.status === 'riding-elevator'
+      this.props.status === 'boarding-elevator' &&
+      nextProps.status === 'riding-elevator'
     ) {
       // Center the person within the elevator. This will be their NEW origin,
       // so that their on-screen position doesn't change.
-      const offsetAmount = ELEVATOR_SHAFT_WIDTH / 2 - this.props.size / 2;
+      const originX = ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
+
+      // We want them to fill one of 3 pre-arranged elevator spots, based on
+      // their `elevatorPosition`, which is an enum of -1, 0, 1.
+      const destinationX =
+        originX + getPersonElevatorPositionOffset(nextProps.elevatorPosition);
 
       this.setState({
-        currentX: offsetAmount,
-        destinationX: this.props.personElevatorPosition * (
-          ELEVATOR_SHAFT_WIDTH / 4
-        ),
+        currentX: originX,
+        destinationX,
       });
     }
 
     if (
-      prevProps.status === 'riding-elevator' &&
-      this.props.status === 'arrived-at-destination'
+      this.props.status === 'riding-elevator' &&
+      nextProps.status === 'arrived-at-destination'
     ) {
       // We need to do the opposite of the boarding->riding transition, and
       // move this fella from the elevator DOM container to the new floor.
-      const elevatorBox = prevProps.elevatorRef.getBoundingClientRect();
-      const floorBox = this.props.floorRef.getBoundingClientRect();
+      const elevatorBox = this.props.elevatorRef.getBoundingClientRect();
+      const floorBox = nextProps.floorRef.getBoundingClientRect();
 
-      const offsetAmount =
-        elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - this.props.size / 2;
+      const centerOfElevator =
+        elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
+
+      const elevatorPositionOffset = getPersonElevatorPositionOffset(
+        this.props.elevatorPosition
+      );
+
+      const originX = centerOfElevator + elevatorPositionOffset;
 
       this.setState({
-        currentX: offsetAmount,
-        destinationX: floorBox.left + 50,
+        currentX: originX,
+        destinationX: originX - 100,
       });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.destinationX !== this.state.destinationX) {
+      window.cancelAnimationFrame(this.animationFrameId);
+
+      this.moveTowardsDestinationX();
     }
   }
 
@@ -189,6 +218,7 @@ class PersonController extends PureComponent<Props, State> {
       destinationFloorId,
       elevatorButtonRef,
       isFloorAlreadyRequested,
+      numberOfFolksAlreadyOnElevator,
       joinGroupWaitingForElevator,
       finishBoardingElevator,
     } = this.props;
@@ -228,6 +258,7 @@ class PersonController extends PureComponent<Props, State> {
           personId: id,
           elevatorId,
           destinationFloorId,
+          numberOfFolksAlreadyOnElevator,
         });
 
         return;
@@ -308,21 +339,15 @@ const mapStateToProps = (state, ownProps) => {
     return getPropsForInitialFloor(state, ownProps);
   }
 
-  const isBoardingElevator = status === 'boarding-elevator';
-
-  if (isBoardingElevator) {
+  if (typeof ownProps.elevatorId !== 'undefined') {
     // Figure out which elevator they're boarding, so that we can work out which
     // elevator position they'll fill.
-    const numberOfFolksAlreadyOnElevator = (
-      getPeopleOnElevatorFactory(ownProps.elevatorId)(state)
-    );
+    const numberOfFolksAlreadyOnElevator = getPeopleOnElevatorFactory(
+      ownProps.elevatorId
+    )(state).length;
 
     return {
-      // Make the range value from 0-2 by using modulo, and then from
-      // -1 to 1, by subtracting 1. THis way, the center spot is position 0,
-      // which makes the math easier, but also makes a kind of sense since the
-      // folks enter through the center.
-      personElevatorPosition: numberOfFolksAlreadyOnElevator % 3 - 1,
+      numberOfFolksAlreadyOnElevator,
     };
   }
 
