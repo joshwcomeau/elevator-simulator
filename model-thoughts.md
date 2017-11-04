@@ -127,3 +127,20 @@ Persons will have the following callback:
 My current thinking is that Person callbacks are fired whenever the person finishes moving... when they arrive at the buttons, they fire `requestElevator`. When the elevator door opens and they line themselves up with the door, they fire `boardElevator`. When the elevator arrives at their floor, they walk a few steps and fade away (or w/e), and fire `arrive`.
 
 The START of their movement is handled by external events. When the elevator fires `ELEVATOR_ARRIVES_AT_FLOOR` for the floor a Person is waiting on, going in a direction they can use, that action updates their reducer state, which causes the person's `destinationX` to change, and so they start moving.
+
+---------------
+
+
+Current setup:
+
+Person is initialized by Building (later, from above), with a buncha random stats, including an initial floor and a destination floor.
+
+PersonController has state that dictates the current X position (in terms of offset from the parent container), and the destination X position.
+
+When the person's Status changes, the PersonController figures out where it has to walk to, and does something when it gets there (typically a redux action).
+
+There are also a couple Sagas that interact in a call-and-response kind of way.
+
+When the person is first initialized, the PersonController is handed a ref for the elevator button container. It uses it to figure out how far it has to move, and kicks off its animation loop. Every 1/60th of a frame (hopefully) it moves a little closer to the destination.
+
+When it gets there (or, if another person gets there first), it fires `finishedWalking`, which in turn fires off the appropriate
