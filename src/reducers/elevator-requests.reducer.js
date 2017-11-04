@@ -8,13 +8,13 @@ import {
   FULFILL_ELEVATOR_REQUEST,
 } from '../actions';
 
-import type { ReduxState, Action, Direction } from '../types';
+import type { ReduxState, Action, ElevatorDirection } from '../types';
 
 export type ElevatorRequest = {
   id: string,
   floorId: number,
   peopleIds: Array<number>,
-  direction: Direction,
+  direction: ElevatorDirection,
   requestedAt: Date,
   resolvedAt?: Date,
 };

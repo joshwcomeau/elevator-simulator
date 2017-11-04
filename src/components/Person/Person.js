@@ -12,16 +12,16 @@ import {
 import { PATHS, BODY_COLORS } from './Person.data';
 import { getDistanceToButton } from './Person.helpers';
 
-import type { Shape, Status } from './Person.types';
+import type { PersonShape, PersonStatus } from '../../types';
 
 export type Props = {
   id: string,
   color: string,
-  shape: Shape,
+  shape: PersonShape,
   patience: number,
   walkSpeed: number,
   size: number,
-  Status: Status,
+  Status: PersonStatus,
   isWalking: boolean,
   armPokeTarget?: HTMLElement,
   handleElevatorRequest: () => void,

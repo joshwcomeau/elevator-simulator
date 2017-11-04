@@ -3,11 +3,11 @@ import styled from 'styled-components';
 
 import { COLORS } from '../../constants';
 
-import type { Direction } from '../../types';
+import type { ElevatorDirection } from '../../types';
 
 type Props = {
   size: number,
-  direction: Direction,
+  direction: ElevatorDirection,
   isRequested: boolean,
 };
 const ElevatorButton = ({ size, direction, isRequested }: Props) => {

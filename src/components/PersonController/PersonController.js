@@ -18,19 +18,19 @@ import { getButtonToPress, getDirection } from './PersonController.helpers';
 
 import type {
   ActionCreator,
-  Direction,
+  ElevatorDirection,
   PersonElevatorPosition,
+  PersonStatus,
 } from '../../types';
-import type { Status } from '../Person/Person.types';
 
-type Props = {|
+type Props = {
   // Person attributes
-  status: Status,
+  status: PersonStatus,
   size: number,
   floorId?: number,
   elevatorId?: number,
   destinationFloorId: number,
-  direction?: Direction,
+  direction?: ElevatorDirection,
   elevatorPosition?: PersonElevatorPosition,
 
   // HTML element references, for when the person needs to move relative to
@@ -38,21 +38,24 @@ type Props = {|
   floorRef?: HTMLElement,
   elevatorRef?: HTMLElement,
   elevatorButtonRef?: HTMLElement,
+
   // Various environment statuses
   isFloorAlreadyRequested: boolean,
   numberOfFolksAlreadyWaiting: number,
   numberOfFolksAlreadyOnElevator: number,
+
   // Actions
   requestElevator: ActionCreator,
   joinGroupWaitingForElevator: ActionCreator,
   finishBoardingElevator: ActionCreator,
+
   // Uses function-as-children to pass data down to the underlying Person
   children: (data: {
     isWalking: boolean,
     armPokeTarget?: HTMLElement,
     handleElevatorRequest: ActionCreator,
   }) => React.Node,
-|};
+};
 
 type State = {
   currentX: number,
@@ -280,7 +283,8 @@ class PersonController extends PureComponent<Props, State> {
   handleElevatorRequest = () => {
     const { floorId, destinationFloorId, requestElevator } = this.props;
 
-    const direction: Direction = destinationFloorId > floorId ? 'up' : 'down';
+    const direction: ElevatorDirection =
+      destinationFloorId > floorId ? 'up' : 'down';
 
     requestElevator({ floorId, personId: this.props.id, direction });
   };

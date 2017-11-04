@@ -81,10 +81,6 @@ class World extends PureComponent<Props> {
     );
   }
 
-  componentWillUnmount() {
-    window.clearTimeout(this.peopleGeneratorId);
-  }
-
   generatePeoplePeriodically = () => {
     // TODO: Should be a saga, right?
   };

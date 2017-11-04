@@ -1,5 +1,8 @@
 // @flow
 
+/**
+ * Generic types for React/Redux things
+ */
 export type Action = {
   type: string,
   [string]: any,
@@ -8,12 +11,24 @@ export type ActionCreator = (data: any) => Action;
 
 export type RefCapturer = (elem: HTMLElement) => void;
 
-// The possible directions for an elevator to be going
-export type Direction = 'up' | 'down';
-
-// The possible positions for a person to be standing within an elevator
+//
+/**
+ * Specific types for Redux "models" and components
+ */
+export type ElevatorDirection = 'up' | 'down';
 export type PersonElevatorPosition = -1 | 0 | 1;
+export type PersonShape = 'pentagon' | 'rectangle';
+export type PersonStatus =
+  | 'initialized'
+  | 'waiting-for-elevator'
+  | 'boarding-elevator'
+  | 'riding-elevator'
+  | 'arrived-at-destination';
 
+//
+/**
+ * Miscellaneous types
+ */
 // TODO: Should import the different sub-reducer types, maybe?
 // Seems like a lot of trouble.
 export type ReduxState = any;

@@ -1,9 +1,9 @@
 // @flow
 import { COLORS } from '../../constants';
 
-import type { Shape } from './Person.types';
+import type { PersonShape } from '../../types';
 
-export const SHAPES: Array<Shape> = ['rectangle', 'pentagon'];
+export const SHAPES: Array<PersonShape> = ['rectangle', 'pentagon'];
 
 export const PATHS = {
   pentagon: `

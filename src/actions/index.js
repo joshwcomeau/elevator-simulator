@@ -1,6 +1,5 @@
 // @flow
-import type { Shape } from '../components/Person/Person.types';
-import type { Direction } from '../types';
+import type { PersonShape, ElevatorDirection } from '../types';
 
 //
 // Action Types
@@ -32,7 +31,7 @@ export const initializeBuilding = (args: InitializeBuilding) => ({
 type RequestElevator = {
   personId: string,
   floorId: number,
-  direction: Direction,
+  direction: ElevatorDirection,
 };
 export const requestElevator = (args: RequestElevator) => {
   // Get a timestamp. Maybe this won't be useful in the end, but it seems neat
@@ -55,7 +54,7 @@ export const requestElevator = (args: RequestElevator) => {
 type JoinGroupWaitingForElevator = {
   floorId: number,
   personId: string,
-  direction: Direction,
+  direction: ElevatorDirection,
 };
 export const joinGroupWaitingForElevator = (
   args: JoinGroupWaitingForElevator
@@ -139,7 +138,7 @@ type NewPersonEntersBuilding = {
   id: string,
   firstName: string,
   lastName: string,
-  shape: Shape,
+  shape: PersonShape,
   size: number,
   color: string,
   patience: number,

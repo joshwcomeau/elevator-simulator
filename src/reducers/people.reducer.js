@@ -9,19 +9,23 @@ import {
   EXIT_FROM_ELEVATOR,
 } from '../actions';
 
-import type { Shape, Status } from '../components/Person/Person.types';
-import type { Action, PersonElevatorPosition } from '../types';
+import type {
+  Action,
+  PersonElevatorPosition,
+  PersonShape,
+  PersonStatus,
+} from '../types';
 
 type BasePersonAttributes = {
   id: string,
   firstName: string,
   lastName: string,
   color: string,
-  shape: Shape,
+  shape: PersonShape,
   patience: number,
   walkSpeed: number,
   destinationFloorId: number,
-  status: Status,
+  status: PersonStatus,
 };
 
 type PersonOnFloor = {
@@ -98,8 +102,6 @@ export default function reducer(
 
     case FINISH_BOARDING_ELEVATOR: {
       const { personId, numberOfFolksAlreadyOnElevator } = action;
-
-      console.log('Finish', action);
 
       // A person's elevator position is an enum of -1, 0, 1.
       // the `0` position is right in the middle.
