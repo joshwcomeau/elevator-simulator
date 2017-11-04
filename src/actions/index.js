@@ -4,6 +4,7 @@ import type { PersonShape, ElevatorDirection } from '../types';
 //
 // Action Types
 export const INITIALIZE_BUILDING = 'INITIALIZE_BUILDING';
+export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
 export const REQUEST_ELEVATOR = 'REQUEST_ELEVATOR';
 export const JOIN_GROUP_WAITING_FOR_ELEVATOR =
   'JOIN_GROUP_WAITING_FOR_ELEVATOR';
@@ -17,7 +18,7 @@ export const FINISH_BOARDING_ELEVATOR = 'FINISH_BOARDING_ELEVATOR';
 export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
 export const MOVE_ELEVATOR = 'MOVE_ELEVATOR';
 export const EXIT_FROM_ELEVATOR = 'EXIT_FROM_ELEVATOR';
-export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
+export const PERSON_CEASES_TO_EXIST = 'PERSON_CEASES_TO_EXIST';
 
 //
 // Action Creators
@@ -25,6 +26,26 @@ type InitializeBuilding = { numFloors: number, numElevators: number };
 export const initializeBuilding = (args: InitializeBuilding) => ({
   type: INITIALIZE_BUILDING,
   ...args,
+});
+
+type NewPersonEntersBuilding = {
+  id: string,
+  firstName: string,
+  lastName: string,
+  shape: PersonShape,
+  size: number,
+  color: string,
+  patience: number,
+  walkSpeed: number,
+  floorId: number,
+  destinationFloorId: number,
+};
+export const newPersonEntersBuilding = (args: NewPersonEntersBuilding) => ({
+  type: NEW_PERSON_ENTERS_BUILDING,
+  person: {
+    status: 'initialized',
+    ...args,
+  },
 });
 
 type RequestElevator = {
@@ -133,22 +154,9 @@ export const exitFromElevator = (args: ExitFromElevator) => ({
   ...args,
 });
 
-type NewPersonEntersBuilding = {
-  id: string,
-  firstName: string,
-  lastName: string,
-  shape: PersonShape,
-  size: number,
-  color: string,
-  patience: number,
-  walkSpeed: number,
-  floorId: number,
-  destinationFloorId: number,
-};
-export const newPersonEntersBuilding = (args: NewPersonEntersBuilding) => ({
-  type: NEW_PERSON_ENTERS_BUILDING,
-  person: {
-    status: 'initialized',
-    ...args,
-  },
+// 💀
+type PersonCeasesToExist = { personId: string };
+export const personCeasesToExist = (args: PersonCeasesToExist) => ({
+  type: PERSON_CEASES_TO_EXIST,
+  ...args,
 });

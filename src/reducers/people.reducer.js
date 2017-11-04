@@ -9,6 +9,7 @@ import {
   START_BOARDING_ELEVATOR,
   FINISH_BOARDING_ELEVATOR,
   EXIT_FROM_ELEVATOR,
+  PERSON_CEASES_TO_EXIST,
 } from '../actions';
 
 import type {
@@ -78,7 +79,6 @@ export default function reducer(
     case REQUEST_ELEVATOR:
     case JOIN_GROUP_WAITING_FOR_ELEVATOR: {
       const { personId } = action;
-      const person = state[personId];
 
       return update(state, {
         [personId]: {
@@ -114,15 +114,13 @@ export default function reducer(
       // We subtract 1, to make it -1, 0, 1, -1, 0, 1, ...
       const elevatorPosition = numberOfFolksAlreadyOnElevator % 3 - 1;
 
-      return {
-        ...state,
+      return update(state, {
         [personId]: {
-          ...state[personId],
-          floorId: null,
-          status: 'riding-elevator',
-          elevatorPosition,
+          floorId: { $set: null },
+          status: { $set: 'riding-elevator' },
+          elevatorPosition: { $set: elevatorPosition },
         },
-      };
+      });
     }
 
     case EXIT_FROM_ELEVATOR: {
@@ -130,17 +128,23 @@ export default function reducer(
 
       const person = state[personId];
 
-      // If the person is exiting the elevator, I'm assuming that they've
-      // arrived at their destination floor.
-      return {
-        ...state,
+      return update(state, {
         [personId]: {
-          ...person,
-          floorId: person.destinationFloorId,
-          elevatorId: null,
-          status: 'arrived-at-destination',
+          // If the person is exiting the elevator, I'm assuming that they've
+          // arrived at their destination floor.
+          floorId: { $set: person.destinationFloorId },
+          status: { $set: 'arrived-at-destination' },
+          elevatorId: { $set: null },
         },
-      };
+      });
+    }
+
+    case PERSON_CEASES_TO_EXIST: {
+      const { personId } = action;
+
+      return update(state, {
+        $unset: [personId],
+      });
     }
 
     default:
