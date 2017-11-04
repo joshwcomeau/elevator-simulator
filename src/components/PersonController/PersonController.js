@@ -179,9 +179,17 @@ class PersonController extends PureComponent<Props, State> {
 
   moveTowardsDestinationX = () => {
     const { currentX, destinationX } = this.state;
-    const { walkSpeed } = this.props;
+    const { status, walkSpeed, isFloorAlreadyRequested } = this.props;
 
     const distanceToDestination = Math.abs(currentX - destinationX);
+
+    // If we're in the process of walking towards the elevator request button,
+    // and someone else gets there first and presses the button, we can
+    // just join the group, and move into the queue.
+    if (status === 'initialized' && isFloorAlreadyRequested) {
+      this.finishWalking();
+      return;
+    }
 
     // If we're _almost_ at our destination (we'll get there in the next tick),
     // we can skip a bunch of stuff and just teleport there.

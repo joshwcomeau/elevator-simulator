@@ -77,7 +77,7 @@ class World extends PureComponent<Props> {
           floorId: 2,
           destinationFloorId: 1,
         }),
-      2600
+      4100
     );
   }
 
