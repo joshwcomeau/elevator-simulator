@@ -4,11 +4,11 @@ import { take, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   ELEVATOR_ARRIVES_AT_FLOOR,
-  FINISH_BOARDING_ELEVATOR,
+  ENTER_ELEVATOR,
   openElevatorDoors,
   fulfillElevatorRequest,
   closeElevatorDoors,
-  startBoardingElevator,
+  walkTowardsElevatorDoors,
   moveElevator,
   exitFromElevator,
 } from '../actions';
@@ -64,7 +64,7 @@ function* handleElevatorArrivesAtFloor(action) {
     const { peopleIds } = elevatorRequest;
 
     yield put(
-      startBoardingElevator({
+      walkTowardsElevatorDoors({
         peopleIds,
         elevatorId: elevator.id,
       })
@@ -74,7 +74,7 @@ function* handleElevatorArrivesAtFloor(action) {
     // elevator. Thankfully, we know how many folks we're waiting for!
     let peopleRemaining = peopleIds.length;
     while (peopleRemaining) {
-      yield take(FINISH_BOARDING_ELEVATOR);
+      yield take(ENTER_ELEVATOR);
       peopleRemaining--;
     }
   }

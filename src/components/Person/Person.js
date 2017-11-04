@@ -23,7 +23,7 @@ export type Props = {
   size: number,
   Status: PersonStatus,
   isWalking: boolean,
-  armPokeTarget?: HTMLElement,
+  armPokeTarget: ?HTMLElement,
   handleElevatorRequest: () => void,
 };
 

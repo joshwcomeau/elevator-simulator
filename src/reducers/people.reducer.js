@@ -6,8 +6,8 @@ import {
   NEW_PERSON_ENTERS_BUILDING,
   REQUEST_ELEVATOR,
   JOIN_GROUP_WAITING_FOR_ELEVATOR,
-  START_BOARDING_ELEVATOR,
-  FINISH_BOARDING_ELEVATOR,
+  WALK_TOWARDS_ELEVATOR_DOORS,
+  ENTER_ELEVATOR,
   EXIT_FROM_ELEVATOR,
   PERSON_CEASES_TO_EXIST,
 } from '../actions';
@@ -87,7 +87,7 @@ export default function reducer(
       });
     }
 
-    case START_BOARDING_ELEVATOR: {
+    case WALK_TOWARDS_ELEVATOR_DOORS: {
       const { peopleIds, elevatorId } = action;
 
       const stateCopy = { ...state };
@@ -105,7 +105,7 @@ export default function reducer(
       );
     }
 
-    case FINISH_BOARDING_ELEVATOR: {
+    case ENTER_ELEVATOR: {
       const { personId, numberOfFolksAlreadyOnElevator } = action;
 
       // A person's elevator position is an enum of -1, 0, 1.

@@ -13,8 +13,8 @@ export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const CLOSE_ELEVATOR_DOORS = 'CLOSE_ELEVATOR_DOORS';
 // TODO: Better names for these next 2 actions. It's not an API call :/
-export const START_BOARDING_ELEVATOR = 'START_BOARDING_ELEVATOR';
-export const FINISH_BOARDING_ELEVATOR = 'FINISH_BOARDING_ELEVATOR';
+export const WALK_TOWARDS_ELEVATOR_DOORS = 'WALK_TOWARDS_ELEVATOR_DOORS';
+export const ENTER_ELEVATOR = 'ENTER_ELEVATOR';
 export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
 export const MOVE_ELEVATOR = 'MOVE_ELEVATOR';
 export const EXIT_FROM_ELEVATOR = 'EXIT_FROM_ELEVATOR';
@@ -115,20 +115,23 @@ export const closeElevatorDoors = (args: CloseElevatorDoors) => ({
   ...args,
 });
 
-type StartBoardingElevator = { peopleIds: Array<string>, elevatorId: number };
-export const startBoardingElevator = (args: StartBoardingElevator) => ({
-  type: START_BOARDING_ELEVATOR,
+type WalkTowardsElevatorDoors = {
+  peopleIds: Array<string>,
+  elevatorId: number,
+};
+export const walkTowardsElevatorDoors = (args: WalkTowardsElevatorDoors) => ({
+  type: WALK_TOWARDS_ELEVATOR_DOORS,
   ...args,
 });
 
-type FinishBoardingElevator = {
+type EnterElevator = {
   personId: string,
   elevatorId: number,
   destinationFloorId: number,
   numberOfFolksAlreadyOnElevator: number,
 };
-export const finishBoardingElevator = (args: FinishBoardingElevator) => ({
-  type: FINISH_BOARDING_ELEVATOR,
+export const enterElevator = (args: EnterElevator) => ({
+  type: ENTER_ELEVATOR,
   ...args,
 });
 

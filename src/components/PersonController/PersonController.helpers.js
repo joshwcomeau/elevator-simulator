@@ -11,7 +11,7 @@ export const getButtonToPress = ({
   floorId,
   destinationFloorId,
 }: {
-  buttons: Array<HTMLElement>,
+  buttons: HTMLCollection<*>,
   floorId: number,
   destinationFloorId: number,
 }) => {

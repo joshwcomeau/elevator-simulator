@@ -1,12 +1,16 @@
+// @flow
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
+import type { Node as ReactNode } from 'react';
+
 import {
   requestElevator,
   joinGroupWaitingForElevator,
-  finishBoardingElevator,
+  enterElevator,
+  personCeasesToExist,
 } from '../../actions';
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { getPersonElevatorPositionOffset } from '../Elevator/Elevator.helpers';
@@ -25,8 +29,10 @@ import type {
 
 type Props = {
   // Person attributes
+  id: string,
   status: PersonStatus,
   size: number,
+  walkSpeed: number,
   floorId?: number,
   elevatorId?: number,
   destinationFloorId: number,
@@ -47,26 +53,38 @@ type Props = {
   // Actions
   requestElevator: ActionCreator,
   joinGroupWaitingForElevator: ActionCreator,
-  finishBoardingElevator: ActionCreator,
+  enterElevator: ActionCreator,
+  personCeasesToExist: ActionCreator,
 
   // Uses function-as-children to pass data down to the underlying Person
   children: (data: {
     isWalking: boolean,
-    armPokeTarget?: HTMLElement,
-    handleElevatorRequest: ActionCreator,
-  }) => React.Node,
+    armPokeTarget: ?HTMLElement,
+    handleElevatorRequest: () => void,
+  }) => ReactNode,
 };
 
 type State = {
+  // The person's current X offset from the left of the parent container
   currentX: number,
+  // The person's ideal X offset from the left of the parent container.
+  // When destinationX !== currentX, it means this person is on the move.
   destinationX: number,
-  armPokeTarget?: HTMLElement,
+  // Once the person makes it to their destination floor, they start fading
+  // away. 😢
+  ghosting: boolean,
+  // If the person needs to poke something (like an elevator request button),
+  // it can be stored here and passed down to the Person, who'll know what to
+  // do with it.
+  armPokeTarget: ?HTMLElement,
 };
 
 class PersonController extends PureComponent<Props, State> {
   state = {
     currentX: 100, // TEMP
     destinationX: 100, // TEMP
+    ghosting: false,
+    armPokeTarget: null,
   };
 
   animationFrameId: number;
@@ -74,6 +92,10 @@ class PersonController extends PureComponent<Props, State> {
 
   componentDidMount() {
     const { size, elevatorButtonRef } = this.props;
+
+    if (!elevatorButtonRef) {
+      throw new Error('Person needs to mount with an ElevatorButtonRef');
+    }
 
     // When a person mounts, their first order of business is to march towards
     // the elevator buttons on their floor.
@@ -127,10 +149,9 @@ class PersonController extends PureComponent<Props, State> {
 
       case 'boarding-elevator': {
         if (!nextProps.elevatorRef) {
-          throw new Error(
-            'Started trying to board elevator, but no elevator ref was supplied'
-          );
+          throw new Error('Elevator ref needed when boarding');
         }
+
         // march our little fella towards the center of the elevator doors
         const elevatorBox = nextProps.elevatorRef.getBoundingClientRect();
 
@@ -145,6 +166,10 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'riding-elevator': {
+        if (!nextProps.elevatorPosition) {
+          throw new Error('Elevator position needed while riding');
+        }
+
         // Center the person within the elevator. This will be their NEW origin,
         // so that their on-screen position doesn't change.
         const originX = ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
@@ -163,16 +188,21 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'arrived-at-destination': {
+        const { elevatorRef, elevatorPosition } = this.props;
+
+        if (!elevatorRef || !elevatorPosition) {
+          throw new Error('Elevator data needed when arriving at destination');
+        }
+
         // We need to do the opposite of the boarding->riding transition, and
         // move this fella from the elevator DOM container to the new floor.
-        const elevatorBox = this.props.elevatorRef.getBoundingClientRect();
-        const floorBox = nextProps.floorRef.getBoundingClientRect();
+        const elevatorBox = elevatorRef.getBoundingClientRect();
 
         const centerOfElevator =
           elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
 
         const elevatorPositionOffset = getPersonElevatorPositionOffset(
-          this.props.elevatorPosition
+          elevatorPosition
         );
 
         const originX = centerOfElevator + elevatorPositionOffset;
@@ -242,11 +272,16 @@ class PersonController extends PureComponent<Props, State> {
       isFloorAlreadyRequested,
       numberOfFolksAlreadyOnElevator,
       joinGroupWaitingForElevator,
-      finishBoardingElevator,
+      enterElevator,
+      personCeasesToExist,
     } = this.props;
 
     switch (status) {
       case 'initialized': {
+        if (typeof floorId === 'undefined' || !elevatorButtonRef) {
+          throw new Error('Please provide floor and refs');
+        }
+
         // We need to hit the right elevator button, and then fire off the
         // elevator request action.
 
@@ -263,7 +298,6 @@ class PersonController extends PureComponent<Props, State> {
           return;
         }
 
-        // Start by figuring out which button to press.
         const armPokeTarget = getButtonToPress({
           buttons: elevatorButtonRef.children,
           floorId,
@@ -276,12 +310,18 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'boarding-elevator': {
-        finishBoardingElevator({
+        enterElevator({
           personId: id,
           elevatorId,
           destinationFloorId,
           numberOfFolksAlreadyOnElevator,
         });
+
+        return;
+      }
+
+      case 'arrived-at-destination': {
+        personCeasesToExist({ personId: id });
 
         return;
       }
@@ -293,6 +333,11 @@ class PersonController extends PureComponent<Props, State> {
 
   handleElevatorRequest = () => {
     const { floorId, destinationFloorId, requestElevator } = this.props;
+
+    // It makes no sense for `floorId` to be undefined, but y'know, Flow...
+    if (typeof floorId === 'undefined') {
+      throw new Error('Cannot handle an elevator request without a floor');
+    }
 
     const direction: ElevatorDirection =
       destinationFloorId > floorId ? 'up' : 'down';
@@ -307,6 +352,10 @@ class PersonController extends PureComponent<Props, State> {
     const renderTarget = floorRef || elevatorRef;
 
     const isWalking = currentX !== destinationX;
+
+    if (!renderTarget) {
+      throw new Error('Please provide either a floor or elevator to render to');
+    }
 
     return createPortal(
       <PersonContainer style={{ transform: `translateX(${currentX}px)` }}>
@@ -380,5 +429,6 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
   requestElevator,
   joinGroupWaitingForElevator,
-  finishBoardingElevator,
+  enterElevator,
+  personCeasesToExist,
 })(PersonController);

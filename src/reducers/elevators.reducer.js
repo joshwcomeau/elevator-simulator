@@ -6,7 +6,7 @@ import {
   DISPATCH_ELEVATOR,
   ELEVATOR_ARRIVES_AT_FLOOR,
   OPEN_ELEVATOR_DOORS,
-  FINISH_BOARDING_ELEVATOR,
+  ENTER_ELEVATOR,
   FULFILL_ELEVATOR_REQUEST,
   CLOSE_ELEVATOR_DOORS,
   MOVE_ELEVATOR,
@@ -93,7 +93,7 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       });
     }
 
-    case FINISH_BOARDING_ELEVATOR: {
+    case ENTER_ELEVATOR: {
       return update(state, {
         [action.elevatorId]: {
           requestedFloorIds: {
