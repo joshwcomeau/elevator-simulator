@@ -10,6 +10,7 @@ import {
 } from '../../actions';
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
+import { getPeopleOnElevatorFactory } from '../../reducers/people.reducer';
 import { random } from '../../utils';
 
 import { getButtonToPress, getDirection } from './PersonController.helpers';
@@ -32,6 +33,7 @@ type Props = {
   requestElevator: ActionCreator,
   handleBoardElevator: ActionCreator,
   handleDisembarkElevator: ActionCreator,
+  personElevatorPosition?: 0 | 1 | 2,
   children: any,
 };
 
@@ -115,15 +117,11 @@ class PersonController extends PureComponent<Props, State> {
       // so that their on-screen position doesn't change.
       const offsetAmount = ELEVATOR_SHAFT_WIDTH / 2 - this.props.size / 2;
 
-      // To avoid having everyone standing on top of each other, we'll shuffle
-      // people a little bit
-      const destinationX = random(
-        offsetAmount - ELEVATOR_SHAFT_WIDTH / 4,
-        offsetAmount + ELEVATOR_SHAFT_WIDTH / 4
-      );
       this.setState({
         currentX: offsetAmount,
-        destinationX,
+        destinationX: this.props.personElevatorPosition * (
+          ELEVATOR_SHAFT_WIDTH / 4
+        ),
       });
     }
 
@@ -315,7 +313,17 @@ const mapStateToProps = (state, ownProps) => {
   if (isBoardingElevator) {
     // Figure out which elevator they're boarding, so that we can work out which
     // elevator position they'll fill.
-    console.log(ownProps.elevatorId)
+    const numberOfFolksAlreadyOnElevator = (
+      getPeopleOnElevatorFactory(ownProps.elevatorId)(state)
+    );
+
+    return {
+      // Make the range value from 0-2 by using modulo, and then from
+      // -1 to 1, by subtracting 1. THis way, the center spot is position 0,
+      // which makes the math easier, but also makes a kind of sense since the
+      // folks enter through the center.
+      personElevatorPosition: numberOfFolksAlreadyOnElevator % 3 - 1,
+    };
   }
 
   return {};
