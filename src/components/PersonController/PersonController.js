@@ -70,6 +70,7 @@ class PersonController extends PureComponent<Props, State> {
   };
 
   animationFrameId: number;
+  nonCriticalTimeoutId: number;
 
   componentDidMount() {
     const { size, elevatorButtonRef } = this.props;
@@ -84,87 +85,9 @@ class PersonController extends PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (
-      this.props.status === 'initialized' &&
-      nextProps.status === 'waiting-for-elevator'
-    ) {
-      // If we're waiting for the elevator, we want to form a neat orderly
-      // line beside the elevator, with everyone else who has requested it.
-      const offsetAmount = nextProps.numberOfFolksAlreadyWaiting * 25;
-
-      // We also don't want to IMMEDIATELY waddle away after pressing the
-      // button; we want to wait a short amount of time.
-      // That said, if the elevator arrives in that gap, we don't need to go
-      // join the line, we can just file in. So, we'll cancel this timer if
-      // it stops being important.
-      this.nonCriticalTimeoutId = window.setTimeout(() => {
-        this.setState(state => ({
-          destinationX: state.destinationX - offsetAmount,
-        }));
-      }, 400);
-    }
-
-    if (
-      this.props.status === 'waiting-for-elevator' &&
-      nextProps.status === 'boarding-elevator'
-    ) {
-      if (!nextProps.elevatorRef) {
-        throw new Error(
-          'Started trying to board elevator, but no elevator ref was supplied'
-        );
-      }
-      // march our little fella towards the center of the elevator doors
-      const elevatorBox = nextProps.elevatorRef.getBoundingClientRect();
-
-      const offsetAmount =
-        elevatorBox.left + elevatorBox.width / 2 - nextProps.size / 2;
-
-      this.setState({
-        destinationX: offsetAmount,
-      });
-    }
-
-    if (
-      this.props.status === 'boarding-elevator' &&
-      nextProps.status === 'riding-elevator'
-    ) {
-      // Center the person within the elevator. This will be their NEW origin,
-      // so that their on-screen position doesn't change.
-      const originX = ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
-
-      // We want them to fill one of 3 pre-arranged elevator spots, based on
-      // their `elevatorPosition`, which is an enum of -1, 0, 1.
-      const destinationX =
-        originX + getPersonElevatorPositionOffset(nextProps.elevatorPosition);
-
-      this.setState({
-        currentX: originX,
-        destinationX,
-      });
-    }
-
-    if (
-      this.props.status === 'riding-elevator' &&
-      nextProps.status === 'arrived-at-destination'
-    ) {
-      // We need to do the opposite of the boarding->riding transition, and
-      // move this fella from the elevator DOM container to the new floor.
-      const elevatorBox = this.props.elevatorRef.getBoundingClientRect();
-      const floorBox = nextProps.floorRef.getBoundingClientRect();
-
-      const centerOfElevator =
-        elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
-
-      const elevatorPositionOffset = getPersonElevatorPositionOffset(
-        this.props.elevatorPosition
-      );
-
-      const originX = centerOfElevator + elevatorPositionOffset;
-
-      this.setState({
-        currentX: originX,
-        destinationX: originX - 100,
-      });
+    // Every time the person's status changes, they need to perform an action.
+    if (this.props.status !== nextProps.status) {
+      this.handleStatusChange(nextProps);
     }
   }
 
@@ -178,7 +101,95 @@ class PersonController extends PureComponent<Props, State> {
 
   componentWillUnmount() {
     window.cancelAnimationFrame(this.animationFrameId);
+    window.clearTimeout(this.nonCriticalTimeoutId);
   }
+
+  handleStatusChange = (nextProps: Props) => {
+    switch (nextProps.status) {
+      case 'waiting-for-elevator': {
+        // If we're waiting for the elevator, we want to form a neat orderly
+        // line beside the elevator, with everyone else who has requested it.
+        const offsetAmount = nextProps.numberOfFolksAlreadyWaiting * 15;
+
+        // We also don't want to IMMEDIATELY waddle away after pressing the
+        // button; we want to wait a short amount of time.
+        // That said, if the elevator arrives in that gap, we don't need to go
+        // join the line, we can just file in. So, we'll cancel this timer if
+        // it stops being important.
+        this.nonCriticalTimeoutId = window.setTimeout(() => {
+          this.setState(state => ({
+            destinationX: state.destinationX - offsetAmount,
+          }));
+        }, 250);
+
+        return;
+      }
+
+      case 'boarding-elevator': {
+        if (!nextProps.elevatorRef) {
+          throw new Error(
+            'Started trying to board elevator, but no elevator ref was supplied'
+          );
+        }
+        // march our little fella towards the center of the elevator doors
+        const elevatorBox = nextProps.elevatorRef.getBoundingClientRect();
+
+        const offsetAmount =
+          elevatorBox.left + elevatorBox.width / 2 - nextProps.size / 2;
+
+        this.setState({
+          destinationX: offsetAmount,
+        });
+
+        return;
+      }
+
+      case 'riding-elevator': {
+        // Center the person within the elevator. This will be their NEW origin,
+        // so that their on-screen position doesn't change.
+        const originX = ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
+
+        // We want them to fill one of 3 pre-arranged elevator spots, based on
+        // their `elevatorPosition`, which is an enum of -1, 0, 1.
+        const destinationX =
+          originX + getPersonElevatorPositionOffset(nextProps.elevatorPosition);
+
+        this.setState({
+          currentX: originX,
+          destinationX,
+        });
+
+        return;
+      }
+
+      case 'arrived-at-destination': {
+        // We need to do the opposite of the boarding->riding transition, and
+        // move this fella from the elevator DOM container to the new floor.
+        const elevatorBox = this.props.elevatorRef.getBoundingClientRect();
+        const floorBox = nextProps.floorRef.getBoundingClientRect();
+
+        const centerOfElevator =
+          elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
+
+        const elevatorPositionOffset = getPersonElevatorPositionOffset(
+          this.props.elevatorPosition
+        );
+
+        const originX = centerOfElevator + elevatorPositionOffset;
+
+        this.setState({
+          currentX: originX,
+          destinationX: originX - 100,
+        });
+
+        return;
+      }
+
+      default: {
+        return;
+      }
+    }
+  };
 
   moveTowardsDestinationX = () => {
     const { currentX, destinationX } = this.state;

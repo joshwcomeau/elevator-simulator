@@ -18,7 +18,6 @@ export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
 export const MOVE_ELEVATOR = 'MOVE_ELEVATOR';
 export const EXIT_FROM_ELEVATOR = 'EXIT_FROM_ELEVATOR';
 export const NEW_PERSON_ENTERS_BUILDING = 'NEW_PERSON_ENTERS_BUILDING';
-export const PEOPLE_ARRIVE_AT_DESTINATION = 'PEOPLE_ARRIVE_AT_DESTINATION';
 
 //
 // Action Creators
@@ -112,6 +111,16 @@ export const finishBoardingElevator = (args: FinishBoardingElevator) => ({
   ...args,
 });
 
+type FulfillElevatorRequest = {
+  elevatorId: number,
+  elevatorRequestId: string,
+  resolvedAt: Date,
+};
+export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
+  type: FULFILL_ELEVATOR_REQUEST,
+  ...args,
+});
+
 type MoveElevator = { elevatorId: number, floorId: number };
 export const moveElevator = (args: MoveElevator) => ({
   type: MOVE_ELEVATOR,
@@ -121,16 +130,6 @@ export const moveElevator = (args: MoveElevator) => ({
 type ExitFromElevator = { personId: string };
 export const exitFromElevator = (args: ExitFromElevator) => ({
   type: EXIT_FROM_ELEVATOR,
-  ...args,
-});
-
-type FulfillElevatorRequest = {
-  elevatorId: number,
-  elevatorRequestId: string,
-  resolvedAt: Date,
-};
-export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
-  type: FULFILL_ELEVATOR_REQUEST,
   ...args,
 });
 

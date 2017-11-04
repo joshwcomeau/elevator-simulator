@@ -67,9 +67,11 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
     case DISPATCH_ELEVATOR: {
       return update(state, {
         [action.elevatorId]: {
-          status: { $set: 'en-route' },
-          elevatorRequestId: { $set: action.elevatorRequestId },
-          requestedFloorIds: { $set: [action.floorId] },
+          $merge: {
+            status: 'en-route',
+            elevatorRequestId: action.elevatorRequestId,
+            requestedFloorIds: [action.floorId],
+          },
         },
       });
     }

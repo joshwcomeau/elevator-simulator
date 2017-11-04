@@ -29,18 +29,17 @@ export default function reducer(
 ) {
   switch (action.type) {
     case REQUEST_ELEVATOR: {
-      // TODO: should I check and see if a pending request already exists first?
-
-      return {
-        ...state,
-        [action.id]: {
-          id: action.id,
-          floorId: action.floorId,
-          peopleIds: [action.personId],
-          direction: action.direction,
-          requestedAt: action.requestedAt,
+      return update(state, {
+        $merge: {
+          [action.id]: {
+            id: action.id,
+            floorId: action.floorId,
+            peopleIds: [action.personId],
+            direction: action.direction,
+            requestedAt: action.requestedAt,
+          },
         },
-      };
+      });
     }
 
     case JOIN_GROUP_WAITING_FOR_ELEVATOR: {

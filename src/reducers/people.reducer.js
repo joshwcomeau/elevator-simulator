@@ -1,3 +1,5 @@
+// @flow
+import update from 'immutability-helper';
 import { createSelector } from 'reselect';
 
 import {
@@ -14,8 +16,10 @@ import type {
   PersonElevatorPosition,
   PersonShape,
   PersonStatus,
+  ReduxState,
 } from '../types';
 
+//
 type BasePersonAttributes = {
   id: string,
   firstName: string,
@@ -36,14 +40,14 @@ type PersonOnFloor = {
 type PersonOnElevator = {
   ...BasePersonAttributes,
   elevatorId: number,
-  positionWithinElevator: PersonElevatorPositions,
+  positionWithinElevator: PersonElevatorPosition,
 };
 
 type PersonBoardingElevator = {
   ...BasePersonAttributes,
   floorId: number,
   elevatorId: number,
-  positionWithinElevator: PersonElevatorPositions,
+  positionWithinElevator: PersonElevatorPosition,
 };
 
 export type Person = PersonOnFloor | PersonBoardingElevator | PersonOnElevator;
@@ -54,18 +58,21 @@ type PeopleState = {
 
 const initialState: PeopleState = {};
 
+//
 export default function reducer(
   state: PeopleState = initialState,
   action: Action
 ) {
   switch (action.type) {
     case NEW_PERSON_ENTERS_BUILDING: {
-      const { person, person: { id } } = action;
+      const { person } = action;
+      const { id } = person;
 
-      return {
-        ...state,
-        [id]: person,
-      };
+      return update(state, {
+        $merge: {
+          [id]: person,
+        },
+      });
     }
 
     case REQUEST_ELEVATOR:
@@ -73,13 +80,11 @@ export default function reducer(
       const { personId } = action;
       const person = state[personId];
 
-      return {
-        ...state,
+      return update(state, {
         [personId]: {
-          ...person,
-          status: 'waiting-for-elevator',
+          status: { $set: 'waiting-for-elevator' },
         },
-      };
+      });
     }
 
     case START_BOARDING_ELEVATOR: {
@@ -105,8 +110,9 @@ export default function reducer(
 
       // A person's elevator position is an enum of -1, 0, 1.
       // the `0` position is right in the middle.
-      const elevatorPosition: PersonElevatorPosition =
-        numberOfFolksAlreadyOnElevator % 3 - 1;
+      // We use modulo to get repeating values 0, 1, 2, 0, 1, 2, ...
+      // We subtract 1, to make it -1, 0, 1, -1, 0, 1, ...
+      const elevatorPosition = numberOfFolksAlreadyOnElevator % 3 - 1;
 
       return {
         ...state,
@@ -142,26 +148,29 @@ export default function reducer(
   }
 }
 
-export const getPeople = state => state.people;
+export const getPeople = (state: ReduxState) => state.people;
 // prettier-ignore
 export const getPeopleArray = createSelector(
   getPeople,
   people => Object.values(people)
 );
 
-export const getPeopleOnElevatorFactory = (elevatorId: number) => state => {
-  const peopleArray = getPeopleArray(state);
+// prettier-ignore
+export const getPeopleOnElevatorFactory = (elevatorId: number) => (
+  (state: ReduxState) => {
+    const peopleArray = getPeopleArray(state);
 
-  return peopleArray.filter(
-    person =>
-      person.status === 'riding-elevator' && person.elevatorId === elevatorId
-  );
-};
+    return peopleArray.filter(
+      person =>
+        person.status === 'riding-elevator' && person.elevatorId === elevatorId
+    );
+  }
+);
 
 export const getPeopleExitingElevatorFactory = (
   elevatorId: number,
   destinationFloorId: number
-) => state => {
+) => (state: ReduxState) => {
   const peopleArray = getPeopleArray(state);
 
   return peopleArray.filter(
