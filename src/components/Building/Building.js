@@ -28,7 +28,7 @@ type Props = {
   newPersonEntersBuilding: ActionCreator,
 };
 
-class World extends PureComponent<Props> {
+class Building extends PureComponent<Props> {
   static defaultProps = {
     numFloors: 4,
     numElevators: 1,
@@ -81,10 +81,6 @@ class World extends PureComponent<Props> {
     );
   }
 
-  generatePeoplePeriodically = () => {
-    // TODO: Should be a saga, right?
-  };
-
   renderPerson = (person: any) => {
     return (
       <PersonController
@@ -110,7 +106,7 @@ class World extends PureComponent<Props> {
     const { floors, elevators, people } = this.props;
 
     return (
-      <WorldElem>
+      <BuildingElem>
         <Elevators>
           {elevators.map(elevator => (
             <Elevator
@@ -139,12 +135,12 @@ class World extends PureComponent<Props> {
         </Floors>
 
         {people.map(this.renderPerson)}
-      </WorldElem>
+      </BuildingElem>
     );
   }
 }
 
-const WorldElem = styled.div`
+const BuildingElem = styled.div`
   position: relative;
   width: 300px;
 `;
@@ -173,4 +169,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { initializeBuilding, newPersonEntersBuilding };
 
-export default connect(mapStateToProps, mapDispatchToProps)(World);
+export default connect(mapStateToProps, mapDispatchToProps)(Building);

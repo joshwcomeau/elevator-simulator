@@ -1,9 +1,9 @@
-import React, { Component, PureComponent } from 'react';
-import World from '../World';
+import React, { PureComponent } from 'react';
+import Building from '../Building';
 
 class App extends PureComponent {
   render() {
-    return <World />;
+    return <Building />;
   }
 }
 
