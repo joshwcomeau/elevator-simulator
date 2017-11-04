@@ -303,12 +303,19 @@ const getPropsForInitialFloor = (state, ownProps) => {
 const mapStateToProps = (state, ownProps) => {
   const { status } = ownProps;
 
-  // TODO: People on elevators don't have FloorIds and will need different data.
   const isOnInitialFloor =
     status === 'initialized' || status === 'waiting-for-elevator';
 
   if (isOnInitialFloor) {
     return getPropsForInitialFloor(state, ownProps);
+  }
+
+  const isBoardingElevator = status === 'boarding-elevator';
+
+  if (isBoardingElevator) {
+    // Figure out which elevator they're boarding, so that we can work out which
+    // elevator position they'll fill.
+    console.log(ownProps.elevatorId)
   }
 
   return {};

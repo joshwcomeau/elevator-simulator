@@ -168,6 +168,7 @@ const ElevatorDoor = styled.div`
     ${COLORS.gray[100]},
     ${COLORS.gray[300]}
   );
+  opacity: 0.8;
   transform: ${props => (props.isOpen ? `scaleX(0.08)` : `scaleX(1)`)};
   transition: transform ${ELEVATOR_DOOR_TRANSITION_LENGTH}ms;
 `;
