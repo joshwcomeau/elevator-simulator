@@ -23,6 +23,7 @@ export type Props = {
   size: number,
   Status: PersonStatus,
   isWalking: boolean,
+  isGhost: boolean,
   armPokeTarget: ?HTMLElement,
   handleElevatorRequest: () => void,
 };
@@ -104,7 +105,7 @@ class Person extends PureComponent<Props, State> {
   }
 
   render() {
-    const { size, color, shape, isWalking } = this.props;
+    const { size, color, shape, isWalking, isGhost } = this.props;
     const { armEndpoint, armStatus } = this.state;
 
     const armLength = calculateLineLength(
@@ -125,6 +126,7 @@ class Person extends PureComponent<Props, State> {
 
     return (
       <PersonSvg
+        isGhost={isGhost}
         viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
         width={size}
         height={size * 1.15}
@@ -176,10 +178,20 @@ const moveLeg = keyframes`
   }
 `;
 
+const fadeAway = keyframes`
+  from { opacity: 1; }
+  to { opacity: 0; }
+`;
+
 const STEP_DURATION = 500;
+const FADE_DURATION = 4000;
 
 const PersonSvg = styled.svg`
   display: block;
+  animation-name: ${props => (props.isGhost ? fadeAway : 'none')};
+  animation-duration: ${FADE_DURATION}ms;
+  animation-delay: 1000ms;
+  animation-fill-mode: forwards;
 `;
 
 const Leg = styled.line`

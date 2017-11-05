@@ -59,6 +59,7 @@ type Props = {
   // Uses function-as-children to pass data down to the underlying Person
   children: (data: {
     isWalking: boolean,
+    isGhost: boolean,
     armPokeTarget: ?HTMLElement,
     handleElevatorRequest: () => void,
   }) => ReactNode,
@@ -72,7 +73,7 @@ type State = {
   destinationX: number,
   // Once the person makes it to their destination floor, they start fading
   // away. 😢
-  ghosting: boolean,
+  isGhost: boolean,
   // If the person needs to poke something (like an elevator request button),
   // it can be stored here and passed down to the Person, who'll know what to
   // do with it.
@@ -83,7 +84,7 @@ class PersonController extends PureComponent<Props, State> {
   state = {
     currentX: 100, // TEMP
     destinationX: 100, // TEMP
-    ghosting: false,
+    isGhost: false,
     armPokeTarget: null,
   };
 
@@ -127,11 +128,19 @@ class PersonController extends PureComponent<Props, State> {
   }
 
   handleStatusChange = (nextProps: Props) => {
-    switch (nextProps.status) {
+    const {
+      status,
+      size,
+      elevatorPosition,
+      elevatorRef,
+      numberOfFolksAlreadyWaiting,
+    } = nextProps;
+
+    switch (status) {
       case 'waiting-for-elevator': {
         // If we're waiting for the elevator, we want to form a neat orderly
         // line beside the elevator, with everyone else who has requested it.
-        const offsetAmount = nextProps.numberOfFolksAlreadyWaiting * 15;
+        const offsetAmount = numberOfFolksAlreadyWaiting * 15;
 
         // We also don't want to IMMEDIATELY waddle away after pressing the
         // button; we want to wait a short amount of time.
@@ -148,15 +157,15 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'boarding-elevator': {
-        if (!nextProps.elevatorRef) {
+        if (!elevatorRef) {
           throw new Error('Elevator ref needed when boarding');
         }
 
         // march our little fella towards the center of the elevator doors
-        const elevatorBox = nextProps.elevatorRef.getBoundingClientRect();
+        const elevatorBox = elevatorRef.getBoundingClientRect();
 
         const offsetAmount =
-          elevatorBox.left + elevatorBox.width / 2 - nextProps.size / 2;
+          elevatorBox.left + elevatorBox.width / 2 - size / 2;
 
         this.setState({
           destinationX: offsetAmount,
@@ -166,18 +175,18 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'riding-elevator': {
-        if (!nextProps.elevatorPosition) {
+        if (typeof elevatorPosition === 'undefined') {
           throw new Error('Elevator position needed while riding');
         }
 
         // Center the person within the elevator. This will be their NEW origin,
         // so that their on-screen position doesn't change.
-        const originX = ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
+        const originX = ELEVATOR_SHAFT_WIDTH / 2 - size / 2;
 
         // We want them to fill one of 3 pre-arranged elevator spots, based on
         // their `elevatorPosition`, which is an enum of -1, 0, 1.
         const destinationX =
-          originX + getPersonElevatorPositionOffset(nextProps.elevatorPosition);
+          originX + getPersonElevatorPositionOffset(elevatorPosition);
 
         this.setState({
           currentX: originX,
@@ -187,10 +196,8 @@ class PersonController extends PureComponent<Props, State> {
         return;
       }
 
-      case 'arrived-at-destination': {
-        const { elevatorRef, elevatorPosition } = this.props;
-
-        if (!elevatorRef || !elevatorPosition) {
+      case 'disembarking-elevator': {
+        if (!elevatorRef || typeof elevatorPosition === 'undefined') {
           throw new Error('Elevator data needed when arriving at destination');
         }
 
@@ -199,7 +206,7 @@ class PersonController extends PureComponent<Props, State> {
         const elevatorBox = elevatorRef.getBoundingClientRect();
 
         const centerOfElevator =
-          elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - nextProps.size / 2;
+          elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - size / 2;
 
         const elevatorPositionOffset = getPersonElevatorPositionOffset(
           elevatorPosition
@@ -209,7 +216,8 @@ class PersonController extends PureComponent<Props, State> {
 
         this.setState({
           currentX: originX,
-          destinationX: originX - 100,
+          destinationX: 0,
+          isGhost: true,
         });
 
         return;
@@ -320,7 +328,7 @@ class PersonController extends PureComponent<Props, State> {
         return;
       }
 
-      case 'arrived-at-destination': {
+      case 'disembarking-elevator': {
         personCeasesToExist({ personId: id });
 
         return;
@@ -347,7 +355,7 @@ class PersonController extends PureComponent<Props, State> {
 
   render() {
     const { children, floorRef, elevatorRef } = this.props;
-    const { currentX, destinationX, armPokeTarget } = this.state;
+    const { currentX, destinationX, armPokeTarget, isGhost } = this.state;
 
     const renderTarget = floorRef || elevatorRef;
 
@@ -361,6 +369,7 @@ class PersonController extends PureComponent<Props, State> {
       <PersonContainer style={{ transform: `translateX(${currentX}px)` }}>
         {children({
           isWalking,
+          isGhost,
           armPokeTarget,
           handleElevatorRequest: this.handleElevatorRequest,
         })}

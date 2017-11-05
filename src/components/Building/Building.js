@@ -90,10 +90,11 @@ class Building extends PureComponent<Props> {
         elevatorButtonRef={this.buttonRefs[person.floorId]}
         elevatorRef={this.elevatorRefs[person.elevatorId]}
       >
-        {({ isWalking, armPokeTarget, handleElevatorRequest }) => (
+        {({ isWalking, isGhost, armPokeTarget, handleElevatorRequest }) => (
           <Person
             {...person}
             isWalking={isWalking}
+            isGhost={isGhost}
             armPokeTarget={armPokeTarget}
             handleElevatorRequest={handleElevatorRequest}
           />

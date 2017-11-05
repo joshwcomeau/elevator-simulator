@@ -23,8 +23,7 @@ export type PersonStatus =
   | 'waiting-for-elevator'
   | 'boarding-elevator'
   | 'riding-elevator'
-  | 'disembarking-elevator'
-  | 'arrived-at-destination';
+  | 'disembarking-elevator';
 
 //
 /**

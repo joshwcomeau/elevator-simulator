@@ -114,6 +114,8 @@ export default function reducer(
       // We subtract 1, to make it -1, 0, 1, -1, 0, 1, ...
       const elevatorPosition = numberOfFolksAlreadyOnElevator % 3 - 1;
 
+      console.log('Setting elevatorPositon', elevatorPosition);
+
       return update(state, {
         [personId]: {
           floorId: { $set: null },
@@ -133,8 +135,7 @@ export default function reducer(
           // If the person is exiting the elevator, I'm assuming that they've
           // arrived at their destination floor.
           floorId: { $set: person.destinationFloorId },
-          status: { $set: 'arrived-at-destination' },
-          elevatorId: { $set: null },
+          status: { $set: 'disembarking-elevator' },
         },
       });
     }

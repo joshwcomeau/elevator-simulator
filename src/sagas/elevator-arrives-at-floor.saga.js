@@ -48,9 +48,13 @@ function* handleElevatorArrivesAtFloor(action) {
     getPeopleExitingElevatorFactory(elevatorId, floorId)
   );
 
-  for (const person of peopleDisembarking) {
+  // People should exit in the reverse order that they entered.
+  // This is both for realism, but also because it looks buggy when 2D shapes
+  // suddenly change their stacking order.
+  const peopleDisembarkingOrdered = [...peopleDisembarking].reverse();
+  for (const person of peopleDisembarkingOrdered) {
     yield put(exitFromElevator({ personId: person.id }));
-    yield delay(300);
+    yield delay(170);
   }
 
   //
