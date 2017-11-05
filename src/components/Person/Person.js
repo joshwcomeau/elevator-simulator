@@ -10,7 +10,11 @@ import {
 } from '../../utils';
 
 import { PATHS, BODY_COLORS } from './Person.data';
-import { getDistanceToButton } from './Person.helpers';
+import {
+  getDistanceToButton,
+  getAnimationDuration,
+  getLeftLegAnimationDelay,
+} from './Person.helpers';
 
 import type { PersonShape, PersonStatus } from '../../types';
 
@@ -105,7 +109,7 @@ class Person extends PureComponent<Props, State> {
   }
 
   render() {
-    const { size, color, shape, isWalking, isGhost } = this.props;
+    const { size, color, shape, walkSpeed, isWalking, isGhost } = this.props;
     const { armEndpoint, armStatus } = this.state;
 
     const armLength = calculateLineLength(
@@ -132,8 +136,22 @@ class Person extends PureComponent<Props, State> {
         height={size * 1.15}
         innerRef={elem => (this.elem = elem)}
       >
-        <LeftLeg isWalking={isWalking} x1={80} y1={195} x2={80} y2={230} />
-        <RightLeg isWalking={isWalking} x1={120} y1={195} x2={120} y2={230} />
+        <LeftLeg
+          walkSpeed={walkSpeed}
+          isWalking={isWalking}
+          x1={80}
+          y1={195}
+          x2={80}
+          y2={230}
+        />
+        <RightLeg
+          walkSpeed={walkSpeed}
+          isWalking={isWalking}
+          x1={120}
+          y1={195}
+          x2={120}
+          y2={230}
+        />
         <Arm
           x1={VIEWBOX_WIDTH / 2}
           y1={VIEWBOX_HEIGHT / 2}
@@ -141,7 +159,12 @@ class Person extends PureComponent<Props, State> {
           y2={armEndpoint.y}
           style={armStyles}
         />
-        <Body isWalking={isWalking} color={color} d={PATHS[shape]} />
+        <Body
+          walkSpeed={walkSpeed}
+          isWalking={isWalking}
+          color={color}
+          d={PATHS[shape]}
+        />
       </PersonSvg>
     );
   }
@@ -183,7 +206,6 @@ const fadeAway = keyframes`
   to { opacity: 0; }
 `;
 
-const STEP_DURATION = 500;
 const FADE_DURATION = 4000;
 
 const PersonSvg = styled.svg`
@@ -198,13 +220,13 @@ const Leg = styled.line`
   stroke: ${COLORS.gray[700]};
   stroke-width: 10;
   animation-name: ${props => (props.isWalking ? moveLeg : 'none')};
-  animation-duration: ${STEP_DURATION}ms;
+  animation-duration: ${getAnimationDuration}ms;
   animation-iteration-count: infinite;
   will-change: transform;
 `;
 
 const LeftLeg = styled(Leg)`
-  animation-delay: ${STEP_DURATION / 2}ms;
+  animation-delay: ${getLeftLegAnimationDelay}ms;
 `;
 
 const RightLeg = styled(Leg)`
@@ -220,7 +242,7 @@ const Body = styled.path`
   fill: ${props => props.color};
   stroke: none;
   animation-name: ${props => (props.isWalking ? wobbleBody : 'none')};
-  animation-duration: ${STEP_DURATION}ms;
+  animation-duration: ${getAnimationDuration}ms;
   animation-iteration-count: infinite;
   will-change: transform;
 `;

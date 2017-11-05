@@ -114,8 +114,6 @@ export default function reducer(
       // We subtract 1, to make it -1, 0, 1, -1, 0, 1, ...
       const elevatorPosition = numberOfFolksAlreadyOnElevator % 3 - 1;
 
-      console.log('Setting elevatorPositon', elevatorPosition);
-
       return update(state, {
         [personId]: {
           floorId: { $set: null },

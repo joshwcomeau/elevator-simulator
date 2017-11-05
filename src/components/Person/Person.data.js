@@ -44,3 +44,5 @@ export const LAST_NAMES = [
   'Hernandez', 'Moore', 'Martin', 'Jackson', 'Thompson', 'White', 'Lopez',
   'Lee', 'Gonzalez', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Perez',
 ]; // 29
+
+export const BASE_STEP_DURATION = 500;

@@ -1,7 +1,13 @@
 // @flow
 import { sample, random } from '../../utils';
 
-import { SHAPES, BODY_COLORS, FIRST_NAMES, LAST_NAMES } from './Person.data';
+import {
+  SHAPES,
+  BODY_COLORS,
+  FIRST_NAMES,
+  LAST_NAMES,
+  BASE_STEP_DURATION,
+} from './Person.data';
 
 export const getRandomPersonAttrbutes = () => {
   const firstName = sample(FIRST_NAMES);
@@ -57,3 +63,16 @@ export const getDistanceToButton = ({
     y: distanceFromPerson.y * viewboxMultiplier,
   };
 };
+
+type animationArgs = { walkSpeed: number };
+
+// We want the quickness of their steps to match the pace they'er translating
+// across the screen; these two things are inversely correlatd (the FASTER the
+// horizontal translation, the SMALLER the animation loop duration should be).
+// The magic number 1.2 just _feels_ right, but at some point I should work out
+// a proper formula.
+export const getAnimationDuration = ({ walkSpeed }: animationArgs) =>
+  (1.2 - walkSpeed) * BASE_STEP_DURATION;
+
+export const getLeftLegAnimationDelay = ({ walkSpeed }: animationArgs) =>
+  getAnimationDuration({ walkSpeed }) / 2;
