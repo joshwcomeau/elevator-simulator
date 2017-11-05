@@ -55,19 +55,16 @@ type RequestElevator = {
   direction: ElevatorDirection,
 };
 export const requestElevator = (args: RequestElevator) => {
-  // Get a timestamp. Maybe this won't be useful in the end, but it seems neat
-  // to be able to diagnose average request delays, in addition to person
-  // wait times.
-  const requestedAt = new Date();
+  const actionCreatedAt = new Date();
 
   // Generate a unique ID for this request.
   // eg. '2-down-1508847804756`
-  const id = `${args.floorId}-${args.direction}-${Number(requestedAt)}`;
+  const id = `${args.floorId}-${args.direction}-${Number(actionCreatedAt)}`;
 
   return {
     type: REQUEST_ELEVATOR,
     id,
-    requestedAt,
+    actionCreatedAt,
     ...args,
   };
 };
@@ -81,6 +78,7 @@ export const joinGroupWaitingForElevator = (
   args: JoinGroupWaitingForElevator
 ) => ({
   type: JOIN_GROUP_WAITING_FOR_ELEVATOR,
+  actionCreatedAt: new Date(),
   ...args,
 });
 
@@ -134,6 +132,7 @@ type EnterElevator = {
 export const enterElevator = (args: EnterElevator) => ({
   type: ENTER_ELEVATOR,
   ...args,
+  actionCreatedAt: new Date(),
 });
 
 type FulfillElevatorRequest = {
@@ -156,6 +155,7 @@ type ExitFromElevator = { personId: string };
 export const exitFromElevator = (args: ExitFromElevator) => ({
   type: EXIT_FROM_ELEVATOR,
   ...args,
+  actionCreatedAt: new Date(),
 });
 
 type AwaitFurtherInstruction = { elevatorId: number };
@@ -165,7 +165,12 @@ export const awaitFurtherInstruction = (args: AwaitFurtherInstruction) => ({
 });
 
 // 💀
-type PersonCeasesToExist = { personId: string };
+type PersonCeasesToExist = {
+  personId: string,
+  waitStart: Date,
+  rideStart: Date,
+  rideEnd: Date,
+};
 export const personCeasesToExist = (args: PersonCeasesToExist) => ({
   type: PERSON_CEASES_TO_EXIST,
   ...args,

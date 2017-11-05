@@ -16,6 +16,7 @@ export type RefCapturer = (elem: HTMLElement) => void;
  * Specific types for Redux "models" and components
  */
 export type ElevatorDirection = 'up' | 'down';
+
 export type PersonElevatorPosition = -1 | 0 | 1;
 export type PersonShape = 'pentagon' | 'rectangle';
 export type PersonStatus =

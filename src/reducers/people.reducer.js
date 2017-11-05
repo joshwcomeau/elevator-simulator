@@ -16,42 +16,69 @@ import type {
   Action,
   PersonElevatorPosition,
   PersonShape,
-  PersonStatus,
   ReduxState,
 } from '../types';
 
-//
+//////////
 type BasePersonAttributes = {
   id: string,
   firstName: string,
   lastName: string,
   color: string,
   shape: PersonShape,
-  patience: number,
+  size: number,
+  patience: number, // UNUSED
   walkSpeed: number,
   destinationFloorId: number,
-  status: PersonStatus,
 };
 
-type PersonOnFloor = {
+type InitializedState = {
   ...BasePersonAttributes,
+  status: 'initialized',
   floorId: number,
 };
 
-type PersonOnElevator = {
+type WaitingForElevatorState = {
   ...BasePersonAttributes,
-  elevatorId: number,
-  positionWithinElevator: PersonElevatorPosition,
+  status: 'waiting-for-elevator',
+  floorId: number,
+  waitStart: Date,
 };
 
-type PersonBoardingElevator = {
+type BoardingElevatorState = {
   ...BasePersonAttributes,
+  status: 'boarding-elevator',
   floorId: number,
   elevatorId: number,
   positionWithinElevator: PersonElevatorPosition,
+  waitStart: Date,
 };
 
-export type Person = PersonOnFloor | PersonBoardingElevator | PersonOnElevator;
+type RidingElevatorState = {
+  ...BasePersonAttributes,
+  status: 'riding-elevator',
+  elevatorId: number,
+  positionWithinElevator: PersonElevatorPosition,
+  waitStart: Date,
+  rideStart: Date,
+};
+
+type DisembarkingElevatorState = {
+  ...BasePersonAttributes,
+  status: 'disembarking-elevator',
+  floorId: number,
+  elevatorId: number,
+  waitStart: Date,
+  rideStart: Date,
+  rideEnd: Date,
+};
+
+export type Person =
+  | InitializedState
+  | WaitingForElevatorState
+  | BoardingElevatorState
+  | RidingElevatorState
+  | DisembarkingElevatorState;
 
 type PeopleState = {
   [id: string]: Person,
@@ -59,7 +86,7 @@ type PeopleState = {
 
 const initialState: PeopleState = {};
 
-//
+//////////
 export default function reducer(
   state: PeopleState = initialState,
   action: Action
@@ -78,11 +105,12 @@ export default function reducer(
 
     case REQUEST_ELEVATOR:
     case JOIN_GROUP_WAITING_FOR_ELEVATOR: {
-      const { personId } = action;
+      const { personId, actionCreatedAt } = action;
 
       return update(state, {
         [personId]: {
           status: { $set: 'waiting-for-elevator' },
+          waitStart: { $set: actionCreatedAt },
         },
       });
     }
@@ -106,34 +134,44 @@ export default function reducer(
     }
 
     case ENTER_ELEVATOR: {
-      const { personId, numberOfFolksAlreadyOnElevator } = action;
+      const {
+        personId,
+        numberOfFolksAlreadyOnElevator,
+        actionCreatedAt,
+      } = action;
 
       // A person's elevator position is an enum of -1, 0, 1.
       // the `0` position is right in the middle.
       // We use modulo to get repeating values 0, 1, 2, 0, 1, 2, ...
       // We subtract 1, to make it -1, 0, 1, -1, 0, 1, ...
-      const elevatorPosition = numberOfFolksAlreadyOnElevator % 3 - 1;
+      const positionWithinElevator = numberOfFolksAlreadyOnElevator % 3 - 1;
 
       return update(state, {
         [personId]: {
-          floorId: { $set: null },
-          status: { $set: 'riding-elevator' },
-          elevatorPosition: { $set: elevatorPosition },
+          $merge: {
+            floorId: null,
+            status: 'riding-elevator',
+            positionWithinElevator,
+            rideStart: actionCreatedAt,
+          },
         },
       });
     }
 
     case EXIT_FROM_ELEVATOR: {
-      const { personId } = action;
+      const { personId, actionCreatedAt } = action;
 
       const person = state[personId];
 
       return update(state, {
         [personId]: {
-          // If the person is exiting the elevator, I'm assuming that they've
-          // arrived at their destination floor.
-          floorId: { $set: person.destinationFloorId },
-          status: { $set: 'disembarking-elevator' },
+          $merge: {
+            // If the person is exiting the elevator, I'm assuming that they've
+            // arrived at their destination floor.
+            floorId: person.destinationFloorId,
+            status: 'disembarking-elevator',
+            rideEnd: actionCreatedAt,
+          },
         },
       });
     }

@@ -26,6 +26,7 @@ import type {
   PersonElevatorPosition,
   PersonStatus,
 } from '../../types';
+import type { Person } from '../../reducers/people.reducer';
 
 type Props = {
   // Person attributes
@@ -37,7 +38,10 @@ type Props = {
   elevatorId?: number,
   destinationFloorId: number,
   direction?: ElevatorDirection,
-  elevatorPosition?: PersonElevatorPosition,
+  positionWithinElevator?: PersonElevatorPosition,
+  waitStart?: Date,
+  rideStart?: Date,
+  rideEnd?: Date,
 
   // HTML element references, for when the person needs to move relative to
   // something in the DOM
@@ -131,7 +135,7 @@ class PersonController extends PureComponent<Props, State> {
     const {
       status,
       size,
-      elevatorPosition,
+      positionWithinElevator,
       elevatorRef,
       numberOfFolksAlreadyWaiting,
     } = nextProps;
@@ -175,7 +179,7 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'riding-elevator': {
-        if (typeof elevatorPosition === 'undefined') {
+        if (typeof positionWithinElevator === 'undefined') {
           throw new Error('Elevator position needed while riding');
         }
 
@@ -184,9 +188,9 @@ class PersonController extends PureComponent<Props, State> {
         const originX = ELEVATOR_SHAFT_WIDTH / 2 - size / 2;
 
         // We want them to fill one of 3 pre-arranged elevator spots, based on
-        // their `elevatorPosition`, which is an enum of -1, 0, 1.
+        // their `positionWithinElevator`, which is an enum of -1, 0, 1.
         const destinationX =
-          originX + getPersonElevatorPositionOffset(elevatorPosition);
+          originX + getPersonElevatorPositionOffset(positionWithinElevator);
 
         this.setState({
           currentX: originX,
@@ -197,7 +201,7 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'disembarking-elevator': {
-        if (!elevatorRef || typeof elevatorPosition === 'undefined') {
+        if (!elevatorRef || typeof positionWithinElevator === 'undefined') {
           throw new Error('Elevator data needed when arriving at destination');
         }
 
@@ -209,7 +213,7 @@ class PersonController extends PureComponent<Props, State> {
           elevatorBox.left + ELEVATOR_SHAFT_WIDTH / 2 - size / 2;
 
         const elevatorPositionOffset = getPersonElevatorPositionOffset(
-          elevatorPosition
+          positionWithinElevator
         );
 
         const originX = centerOfElevator + elevatorPositionOffset;
@@ -276,6 +280,9 @@ class PersonController extends PureComponent<Props, State> {
       floorId,
       elevatorId,
       destinationFloorId,
+      waitStart,
+      rideStart,
+      rideEnd,
       elevatorButtonRef,
       isFloorAlreadyRequested,
       numberOfFolksAlreadyOnElevator,
@@ -296,6 +303,7 @@ class PersonController extends PureComponent<Props, State> {
         // It's possible, though, that someone previously already requested
         // the elevator going in the same direction on this floor. If so,
         // we want to join the group
+
         if (isFloorAlreadyRequested) {
           joinGroupWaitingForElevator({
             floorId: floorId,
@@ -329,7 +337,11 @@ class PersonController extends PureComponent<Props, State> {
       }
 
       case 'disembarking-elevator': {
-        personCeasesToExist({ personId: id });
+        // This person will be deleted from our state; they're a big bag of
+        // memory that we don't need anymore. That said, we do want to preserve
+        // their wait/ride time stats, so that we can analyze current
+        // performance
+        personCeasesToExist({ personId: id, waitStart, rideStart, rideEnd });
 
         return;
       }
