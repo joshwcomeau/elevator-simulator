@@ -18,6 +18,7 @@ export const ENTER_ELEVATOR = 'ENTER_ELEVATOR';
 export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
 export const MOVE_ELEVATOR = 'MOVE_ELEVATOR';
 export const EXIT_FROM_ELEVATOR = 'EXIT_FROM_ELEVATOR';
+export const AWAIT_FURTHER_INSTRUCTION = 'AWAIT_FURTHER_INSTRUCTION';
 export const PERSON_CEASES_TO_EXIST = 'PERSON_CEASES_TO_EXIST';
 
 //
@@ -154,6 +155,12 @@ export const moveElevator = (args: MoveElevator) => ({
 type ExitFromElevator = { personId: string };
 export const exitFromElevator = (args: ExitFromElevator) => ({
   type: EXIT_FROM_ELEVATOR,
+  ...args,
+});
+
+type AwaitFurtherInstruction = { elevatorId: number };
+export const awaitFurtherInstruction = (args: AwaitFurtherInstruction) => ({
+  type: AWAIT_FURTHER_INSTRUCTION,
   ...args,
 });
 

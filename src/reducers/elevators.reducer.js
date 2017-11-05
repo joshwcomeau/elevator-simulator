@@ -10,6 +10,7 @@ import {
   FULFILL_ELEVATOR_REQUEST,
   CLOSE_ELEVATOR_DOORS,
   MOVE_ELEVATOR,
+  AWAIT_FURTHER_INSTRUCTION,
 } from '../actions';
 import { range, mergeUnique } from '../utils';
 
@@ -124,6 +125,14 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       return update(state, {
         [action.elevatorId]: {
           status: { $set: 'en-route' },
+        },
+      });
+    }
+
+    case AWAIT_FURTHER_INSTRUCTION: {
+      return update(state, {
+        [action.elevatorId]: {
+          status: { $set: 'idle' },
         },
       });
     }

@@ -11,9 +11,17 @@ import {
   walkTowardsElevatorDoors,
   moveElevator,
   exitFromElevator,
+  awaitFurtherInstruction,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
 import { getPeopleExitingElevatorFactory } from '../reducers/people.reducer';
+
+function* elevatorDutiesFulfilled() {
+  // TODO: This is one of those things that ought to be tweakable with knobs.
+  // Fetch customizations from state and use it to figure out what to do.
+
+  yield put(awaitFurtherInstruction({ elevatorId: 0 }));
+}
 
 // Main Saga handler
 function* handleElevatorArrivesAtFloor(action) {
@@ -24,7 +32,10 @@ function* handleElevatorArrivesAtFloor(action) {
 
   // Start by opening the elevator doors.
   yield put(openElevatorDoors({ elevatorId }));
-  yield delay(ELEVATOR_DOOR_TRANSITION_LENGTH);
+  // Originally, I was waiting until the doors were 100% open before moving on,
+  // but this was unrealistic and felt robotic. Now they start moving almost
+  // immediately after the doors start to open.
+  yield delay(ELEVATOR_DOOR_TRANSITION_LENGTH / 4);
 
   if (elevatorRequestId) {
     // At this point, the request is considered "fulfilled"; the elevator has
@@ -92,6 +103,11 @@ function* handleElevatorArrivesAtFloor(action) {
   const requestedFloorIds = yield select(
     state => state.elevators[elevatorId].requestedFloorIds
   );
+
+  if (requestedFloorIds.length === 0) {
+    yield elevatorDutiesFulfilled();
+    return;
+  }
 
   // Figure out the next stop
   // TODO: This shouldn't just be a FIFO list; it should sort them so that
