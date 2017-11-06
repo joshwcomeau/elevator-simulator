@@ -115,3 +115,7 @@ export const calculateLineLength = (
   x2: number,
   y2: number
 ) => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+
+export const sum = values => values.reduce((total, value) => total + value);
+export const mean = values => sum(values) / values.length;
+export const roundedMean = values => Math.round(mean(values));

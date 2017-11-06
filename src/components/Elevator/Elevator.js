@@ -48,7 +48,7 @@ class Elevator extends PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
-    const { status, numFloors, floorId } = props;
+    const { numFloors, floorId } = props;
 
     const currentY = getElevatorOffset(floorId, numFloors);
     // I'm assuming that all elevators initialize at their intended floor.

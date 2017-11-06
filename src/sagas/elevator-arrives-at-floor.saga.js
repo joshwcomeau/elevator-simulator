@@ -64,7 +64,13 @@ function* handleElevatorArrivesAtFloor(action) {
   // suddenly change their stacking order.
   const peopleDisembarkingOrdered = [...peopleDisembarking].reverse();
   for (const person of peopleDisembarkingOrdered) {
-    yield put(exitFromElevator({ personId: person.id }));
+    yield put(
+      exitFromElevator({
+        personId: person.id,
+        waitStart: person.waitStart,
+        rideStart: person.rideStart,
+      })
+    );
     yield delay(170);
   }
 

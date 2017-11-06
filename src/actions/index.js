@@ -55,16 +55,16 @@ type RequestElevator = {
   direction: ElevatorDirection,
 };
 export const requestElevator = (args: RequestElevator) => {
-  const actionCreatedAt = new Date();
+  const waitStart = new Date();
 
   // Generate a unique ID for this request.
   // eg. '2-down-1508847804756`
-  const id = `${args.floorId}-${args.direction}-${Number(actionCreatedAt)}`;
+  const id = `${args.floorId}-${args.direction}-${Number(waitStart)}`;
 
   return {
     type: REQUEST_ELEVATOR,
     id,
-    actionCreatedAt,
+    waitStart,
     ...args,
   };
 };
@@ -78,7 +78,7 @@ export const joinGroupWaitingForElevator = (
   args: JoinGroupWaitingForElevator
 ) => ({
   type: JOIN_GROUP_WAITING_FOR_ELEVATOR,
-  actionCreatedAt: new Date(),
+  waitStart: new Date(),
   ...args,
 });
 
@@ -132,7 +132,7 @@ type EnterElevator = {
 export const enterElevator = (args: EnterElevator) => ({
   type: ENTER_ELEVATOR,
   ...args,
-  actionCreatedAt: new Date(),
+  rideStart: new Date(),
 });
 
 type FulfillElevatorRequest = {
@@ -151,11 +151,15 @@ export const moveElevator = (args: MoveElevator) => ({
   ...args,
 });
 
-type ExitFromElevator = { personId: string };
+type ExitFromElevator = {
+  personId: string,
+  waitStart: Date,
+  rideStart: Date,
+};
 export const exitFromElevator = (args: ExitFromElevator) => ({
   type: EXIT_FROM_ELEVATOR,
   ...args,
-  actionCreatedAt: new Date(),
+  rideEnd: new Date(),
 });
 
 type AwaitFurtherInstruction = { elevatorId: number };
@@ -165,12 +169,7 @@ export const awaitFurtherInstruction = (args: AwaitFurtherInstruction) => ({
 });
 
 // 💀
-type PersonCeasesToExist = {
-  personId: string,
-  waitStart: Date,
-  rideStart: Date,
-  rideEnd: Date,
-};
+type PersonCeasesToExist = { personId: string };
 export const personCeasesToExist = (args: PersonCeasesToExist) => ({
   type: PERSON_CEASES_TO_EXIST,
   ...args,

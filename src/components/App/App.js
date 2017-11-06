@@ -1,9 +1,17 @@
 import React, { PureComponent } from 'react';
+import Aux from 'react-aux';
+
 import Building from '../Building';
+import Statistics from '../Statistics';
 
 class App extends PureComponent {
   render() {
-    return <Building />;
+    return (
+      <Aux>
+        <Building />
+        <Statistics />
+      </Aux>
+    );
   }
 }
 

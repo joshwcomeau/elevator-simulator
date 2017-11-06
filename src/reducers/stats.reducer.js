@@ -1,5 +1,8 @@
 // @flow
-import { PERSON_CEASES_TO_EXIST } from '../actions';
+import { createSelector } from 'reselect';
+
+import { EXIT_FROM_ELEVATOR } from '../actions';
+import { roundedMean } from '../utils';
 
 import type { Action } from '../types';
 
@@ -24,7 +27,7 @@ export default function reducer(
   action: Action
 ) {
   switch (action.type) {
-    case PERSON_CEASES_TO_EXIST: {
+    case EXIT_FROM_ELEVATOR: {
       const { waitStart, rideStart, rideEnd } = action;
 
       const waitTime = rideStart - waitStart;
@@ -43,3 +46,16 @@ export default function reducer(
       return state;
   }
 }
+
+// Selectors
+const getStats = state => state.stats;
+
+// prettier-ignore
+export const getAverageStats = createSelector(
+  getStats,
+  stats => ({
+    averageWait: stats.waitTimes.length ? roundedMean(stats.waitTimes) : null,
+    averageRide: stats.rideTimes.length ? roundedMean(stats.rideTimes) : null,
+    averageTotal: stats.totalTimes.length ? roundedMean(stats.totalTimes) : null,
+  })
+);

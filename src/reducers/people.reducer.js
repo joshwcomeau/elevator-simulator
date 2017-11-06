@@ -105,12 +105,14 @@ export default function reducer(
 
     case REQUEST_ELEVATOR:
     case JOIN_GROUP_WAITING_FOR_ELEVATOR: {
-      const { personId, actionCreatedAt } = action;
+      const { personId, waitStart } = action;
 
       return update(state, {
         [personId]: {
-          status: { $set: 'waiting-for-elevator' },
-          waitStart: { $set: actionCreatedAt },
+          $merge: {
+            status: 'waiting-for-elevator',
+            waitStart,
+          },
         },
       });
     }
@@ -134,11 +136,7 @@ export default function reducer(
     }
 
     case ENTER_ELEVATOR: {
-      const {
-        personId,
-        numberOfFolksAlreadyOnElevator,
-        actionCreatedAt,
-      } = action;
+      const { personId, numberOfFolksAlreadyOnElevator, rideStart } = action;
 
       // A person's elevator position is an enum of -1, 0, 1.
       // the `0` position is right in the middle.
@@ -152,14 +150,14 @@ export default function reducer(
             floorId: null,
             status: 'riding-elevator',
             positionWithinElevator,
-            rideStart: actionCreatedAt,
+            rideStart,
           },
         },
       });
     }
 
     case EXIT_FROM_ELEVATOR: {
-      const { personId, actionCreatedAt } = action;
+      const { personId, rideEnd } = action;
 
       const person = state[personId];
 
@@ -170,7 +168,7 @@ export default function reducer(
             // arrived at their destination floor.
             floorId: person.destinationFloorId,
             status: 'disembarking-elevator',
-            rideEnd: actionCreatedAt,
+            rideEnd,
           },
         },
       });
