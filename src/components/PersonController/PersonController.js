@@ -22,7 +22,6 @@ import { getButtonToPress, getDirection } from './PersonController.helpers';
 import type {
   ActionCreator,
   ElevatorDirection,
-  PersonElevatorPosition,
   PersonStatus,
 } from '../../types';
 
@@ -36,7 +35,7 @@ type Props = {
   elevatorId?: number,
   destinationFloorId: number,
   direction?: ElevatorDirection,
-  positionWithinElevator?: PersonElevatorPosition,
+  positionWithinElevator?: number,
   waitStart?: Date,
   rideStart?: Date,
   rideEnd?: Date,
@@ -352,7 +351,8 @@ class PersonController extends PureComponent<Props, State> {
   handleElevatorRequest = () => {
     const { floorId, destinationFloorId, requestElevator } = this.props;
 
-    // It makes no sense for `floorId` to be undefined, but y'know, Flow...
+    // It makes no sense for `floorId` to be undefined at this point, but
+    // Flow doesn't know that.
     if (typeof floorId === 'undefined') {
       throw new Error('Cannot handle an elevator request without a floor');
     }

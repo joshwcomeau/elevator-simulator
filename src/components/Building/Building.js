@@ -67,6 +67,26 @@ class Building extends PureComponent<Props> {
           floorId: 2,
           destinationFloorId: 1,
         }),
+      1000
+    );
+
+    window.setTimeout(
+      () =>
+        newPersonEntersBuilding({
+          ...getRandomPersonAttrbutes(),
+          floorId: 2,
+          destinationFloorId: 1,
+        }),
+      1400
+    );
+
+    window.setTimeout(
+      () =>
+        newPersonEntersBuilding({
+          ...getRandomPersonAttrbutes(),
+          floorId: 2,
+          destinationFloorId: 1,
+        }),
       1800
     );
 

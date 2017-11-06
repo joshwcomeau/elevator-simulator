@@ -14,6 +14,7 @@ import {
   awaitFurtherInstruction,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
+import { sortByDescending } from '../utils';
 import { getPeopleExitingElevatorFactory } from '../reducers/people.reducer';
 
 function* elevatorDutiesFulfilled() {
@@ -62,7 +63,11 @@ function* handleElevatorArrivesAtFloor(action) {
   // People should exit in the reverse order that they entered.
   // This is both for realism, but also because it looks buggy when 2D shapes
   // suddenly change their stacking order.
-  const peopleDisembarkingOrdered = [...peopleDisembarking].reverse();
+  console.log({ peopleDisembarking });
+  const peopleDisembarkingOrdered = sortByDescending(
+    'positionWithinElevator',
+    peopleDisembarking
+  );
   for (const person of peopleDisembarkingOrdered) {
     yield put(
       exitFromElevator({
@@ -71,7 +76,7 @@ function* handleElevatorArrivesAtFloor(action) {
         rideStart: person.rideStart,
       })
     );
-    yield delay(170);
+    yield delay(300);
   }
 
   //

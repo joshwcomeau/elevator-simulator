@@ -12,12 +12,7 @@ import {
   PERSON_CEASES_TO_EXIST,
 } from '../actions';
 
-import type {
-  Action,
-  PersonElevatorPosition,
-  PersonShape,
-  ReduxState,
-} from '../types';
+import type { Action, PersonShape, ReduxState } from '../types';
 
 //////////
 type BasePersonAttributes = {
@@ -50,7 +45,7 @@ type BoardingElevatorState = {
   status: 'boarding-elevator',
   floorId: number,
   elevatorId: number,
-  positionWithinElevator: PersonElevatorPosition,
+  positionWithinElevator: number,
   waitStart: Date,
 };
 
@@ -58,7 +53,7 @@ type RidingElevatorState = {
   ...BasePersonAttributes,
   status: 'riding-elevator',
   elevatorId: number,
-  positionWithinElevator: PersonElevatorPosition,
+  positionWithinElevator: number,
   waitStart: Date,
   rideStart: Date,
 };
@@ -142,7 +137,7 @@ export default function reducer(
       // the `0` position is right in the middle.
       // We use modulo to get repeating values 0, 1, 2, 0, 1, 2, ...
       // We subtract 1, to make it -1, 0, 1, -1, 0, 1, ...
-      const positionWithinElevator = numberOfFolksAlreadyOnElevator % 3 - 1;
+      const positionWithinElevator = numberOfFolksAlreadyOnElevator;
 
       return update(state, {
         [personId]: {

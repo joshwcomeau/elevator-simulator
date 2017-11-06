@@ -119,3 +119,6 @@ export const calculateLineLength = (
 export const sum = values => values.reduce((total, value) => total + value);
 export const mean = values => sum(values) / values.length;
 export const roundedMean = values => Math.round(mean(values));
+
+export const sortByDescending = (attribute, data) =>
+  data.sort((a, b) => b[attribute] - a[attribute]);

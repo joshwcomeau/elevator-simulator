@@ -17,7 +17,6 @@ export type RefCapturer = (elem: HTMLElement) => void;
  */
 export type ElevatorDirection = 'up' | 'down';
 
-export type PersonElevatorPosition = -1 | 0 | 1;
 export type PersonShape = 'pentagon' | 'rectangle';
 export type PersonStatus =
   | 'initialized'
