@@ -14,7 +14,7 @@ import {
   awaitFurtherInstruction,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
-import { getSlotForPerson } from '../components/Elevator/Elevator.helpers';
+import { sortByDescending } from '../utils';
 import { getPeopleExitingElevatorFactory } from '../reducers/people.reducer';
 
 function* elevatorDutiesFulfilled() {
@@ -63,18 +63,10 @@ function* handleElevatorArrivesAtFloor(action) {
   // People should exit in the reverse order that they entered.
   // This is both for realism, but also because it looks buggy when 2D shapes
   // suddenly change their stacking order.
-  const peopleDisembarkingOrdered = peopleDisembarking.sort((a, b) => {
-    const personASlot = getSlotForPerson(a.positionWithinElevator);
-    const personBSlot = getSlotForPerson(b.positionWithinElevator);
-
-    // if the people share the same slot, we want the one who boarded most
-    // recently.
-    if (personASlot === personBSlot) {
-      return b.positionWithinElevator - a.positionWithinElevator;
-    }
-
-    return personASlot - personBSlot;
-  });
+  const peopleDisembarkingOrdered = sortByDescending(
+    'positionWithinElevator',
+    peopleDisembarking
+  );
   for (const person of peopleDisembarkingOrdered) {
     yield put(
       exitFromElevator({
