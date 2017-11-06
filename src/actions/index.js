@@ -12,7 +12,6 @@ export const DISPATCH_ELEVATOR = 'DISPATCH_ELEVATOR';
 export const ELEVATOR_ARRIVES_AT_FLOOR = 'ELEVATOR_ARRIVES_AT_FLOOR';
 export const OPEN_ELEVATOR_DOORS = 'OPEN_ELEVATOR_DOORS';
 export const CLOSE_ELEVATOR_DOORS = 'CLOSE_ELEVATOR_DOORS';
-// TODO: Better names for these next 2 actions. It's not an API call :/
 export const WALK_TOWARDS_ELEVATOR_DOORS = 'WALK_TOWARDS_ELEVATOR_DOORS';
 export const ENTER_ELEVATOR = 'ENTER_ELEVATOR';
 export const FULFILL_ELEVATOR_REQUEST = 'FULFILL_ELEVATOR_REQUEST';
@@ -57,9 +56,9 @@ type RequestElevator = {
 export const requestElevator = (args: RequestElevator) => {
   const waitStart = new Date();
 
-  // Generate a unique ID for this request.
-  // eg. '2-down-1508847804756`
-  const id = `${args.floorId}-${args.direction}-${Number(waitStart)}`;
+  // Generate a unique ID for this floor/direction.
+  // eg. '2-down`
+  const id = `${args.floorId}-${args.direction}`;
 
   return {
     type: REQUEST_ELEVATOR,

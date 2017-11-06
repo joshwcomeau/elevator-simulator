@@ -16,7 +16,6 @@ import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { getPersonElevatorPositionOffset } from '../Elevator/Elevator.helpers';
 import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
 import { getPeopleOnElevatorFactory } from '../../reducers/people.reducer';
-import { random } from '../../utils';
 
 import { getButtonToPress, getDirection } from './PersonController.helpers';
 
@@ -26,7 +25,6 @@ import type {
   PersonElevatorPosition,
   PersonStatus,
 } from '../../types';
-import type { Person } from '../../reducers/people.reducer';
 
 type Props = {
   // Person attributes

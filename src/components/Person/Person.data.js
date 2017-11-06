@@ -46,3 +46,4 @@ export const LAST_NAMES = [
 ]; // 29
 
 export const BASE_STEP_DURATION = 500;
+export const BASE_POKE_DURATION = 350;

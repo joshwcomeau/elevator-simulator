@@ -9,7 +9,7 @@ import {
   calculateLineLength,
 } from '../../utils';
 
-import { PATHS, BODY_COLORS } from './Person.data';
+import { PATHS, BODY_COLORS, BASE_POKE_DURATION } from './Person.data';
 import {
   getDistanceToButton,
   getAnimationDuration,
@@ -42,7 +42,6 @@ type State = {
 
 const VIEWBOX_WIDTH = 200;
 const VIEWBOX_HEIGHT = 230;
-const ARM_POKE_DURATION = 350;
 
 class Person extends PureComponent<Props, State> {
   elem: HTMLElement;
@@ -103,7 +102,7 @@ class Person extends PureComponent<Props, State> {
     this.setStatePromise({ armEndpoint: { x, y } })
       .then(requestAnimationFramePromise)
       .then(() => this.setStatePromise({ armStatus: 'extending' }))
-      .then(() => setTimeoutPromise(ARM_POKE_DURATION))
+      .then(() => setTimeoutPromise(BASE_POKE_DURATION))
       .then(this.props.handleElevatorRequest)
       .then(() => this.setStatePromise({ armStatus: 'retracting' }));
   }
@@ -124,7 +123,7 @@ class Person extends PureComponent<Props, State> {
       strokeDasharray: armLength,
       transition:
         armStatus !== 'idle'
-          ? `stroke-dashoffset ${ARM_POKE_DURATION}ms linear`
+          ? `stroke-dashoffset ${BASE_POKE_DURATION}ms linear`
           : `stroke-dashoffset 0`,
     };
 

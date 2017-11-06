@@ -29,6 +29,17 @@ export default function reducer(
 ) {
   switch (action.type) {
     case REQUEST_ELEVATOR: {
+      // Check if this request already exists, to prevent duplicating it.
+      // (as in the real world, pressing the same "down" arrow over and over
+      // won't make the elevators come any faster)
+      if (state[action.id]) {
+        return update(state, {
+          [action.id]: {
+            peopleIds: { $push: [action.personId] },
+          },
+        });
+      }
+
       return update(state, {
         $merge: {
           [action.id]: {
