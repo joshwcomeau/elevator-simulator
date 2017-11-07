@@ -12,7 +12,11 @@ import {
   enterElevator,
   personCeasesToExist,
 } from '../../actions';
-import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
+import {
+  ELEVATOR_SHAFT_WIDTH,
+  PERSON_ZINDEX_MIN,
+  PERSON_ZINDEX_MAX,
+} from '../../constants';
 import { getPersonElevatorPositionOffset } from '../Elevator/Elevator.helpers';
 import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
 import {
@@ -95,7 +99,7 @@ class PersonController extends PureComponent<Props, State> {
     destinationX: 100, // TEMP
     isGhost: false,
     armPokeTarget: null,
-    zIndex: 1,
+    zIndex: PERSON_ZINDEX_MIN,
   };
 
   animationFrameId: number;
@@ -229,7 +233,7 @@ class PersonController extends PureComponent<Props, State> {
           currentX: originX,
           destinationX: 0,
           isGhost: true,
-          zIndex: 100 - numberOfFolksAlreadyOnFloor,
+          zIndex: PERSON_ZINDEX_MAX - numberOfFolksAlreadyOnFloor,
         });
 
         return;
@@ -464,8 +468,6 @@ const mapStateToProps = (state, ownProps) => {
 
   if (status === 'disembarking-elevator') {
     const peopleOnFloor = getPeopleDisembarkedOnFloor(ownProps.floorId, state);
-
-    console.log('Count', peopleOnFloor.length);
 
     return { numberOfFolksAlreadyOnFloor: peopleOnFloor.length };
   }

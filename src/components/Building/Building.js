@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { initializeBuilding, newPersonEntersBuilding } from '../../actions';
+import { ELEVATORS_ZINDEX, FLOORS_ZINDEX } from '../../constants';
 import { getPeopleArray } from '../../reducers/people.reducer';
 import { getRandomPersonAttrbutes } from '../Person/Person.helpers';
 
@@ -168,12 +169,14 @@ const BuildingElem = styled.div`
 
 const Floors = styled.div`
   position: relative;
+  z-index: ${FLOORS_ZINDEX};
   display: flex;
   flex-direction: column-reverse;
 `;
 
 const Elevators = styled.div`
   position: absolute;
+  z-index: ${ELEVATORS_ZINDEX};
   top: 0;
   left: 0;
   right: 0;

@@ -49,3 +49,12 @@ export const FLOOR_HEIGHT = 80;
 export const FLOOR_BORDER_WIDTH = 6;
 
 export const ELEVATOR_DOOR_TRANSITION_LENGTH = 1250;
+
+// Z Indices
+export const ELEVATORS_ZINDEX = 5;
+export const FLOORS_ZINDEX = 10;
+export const PERSON_ZINDEX_MIN = 1;
+// We need to manually specify the z-indices of individual people when they
+// disembark from the elevator, to ensure that the folks who get off first stay
+// in front of those behind them.
+export const PERSON_ZINDEX_MAX = 1000;
