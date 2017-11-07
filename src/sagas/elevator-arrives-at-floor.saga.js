@@ -67,6 +67,7 @@ function* handleElevatorArrivesAtFloor(action) {
     'positionWithinElevator',
     peopleDisembarking
   );
+
   for (const person of peopleDisembarkingOrdered) {
     yield put(
       exitFromElevator({

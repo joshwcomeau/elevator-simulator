@@ -15,7 +15,10 @@ import {
 import { ELEVATOR_SHAFT_WIDTH } from '../../constants';
 import { getPersonElevatorPositionOffset } from '../Elevator/Elevator.helpers';
 import { getElevatorRequestsArray } from '../../reducers/elevator-requests.reducer';
-import { getPeopleOnElevatorFactory } from '../../reducers/people.reducer';
+import {
+  getPeopleOnElevator,
+  getPeopleDisembarkedOnFloor,
+} from '../../reducers/people.reducer';
 
 import { getButtonToPress, getDirection } from './PersonController.helpers';
 
@@ -50,6 +53,7 @@ type Props = {
   isFloorAlreadyRequested: boolean,
   numberOfFolksAlreadyWaiting: number,
   numberOfFolksAlreadyOnElevator: number,
+  numberOfFolksAlreadyOnFloor: number,
 
   // Actions
   requestElevator: ActionCreator,
@@ -79,6 +83,10 @@ type State = {
   // it can be stored here and passed down to the Person, who'll know what to
   // do with it.
   armPokeTarget: ?HTMLElement,
+  // When we arrive at the destination floor, we need to manually set the
+  // z-indices, so that the first one off is the top of the stack, not the
+  // bottom.
+  zIndex: number,
 };
 
 class PersonController extends PureComponent<Props, State> {
@@ -87,6 +95,7 @@ class PersonController extends PureComponent<Props, State> {
     destinationX: 100, // TEMP
     isGhost: false,
     armPokeTarget: null,
+    zIndex: 1,
   };
 
   animationFrameId: number;
@@ -135,6 +144,7 @@ class PersonController extends PureComponent<Props, State> {
       positionWithinElevator,
       elevatorRef,
       numberOfFolksAlreadyWaiting,
+      numberOfFolksAlreadyOnFloor,
     } = nextProps;
 
     switch (status) {
@@ -219,6 +229,7 @@ class PersonController extends PureComponent<Props, State> {
           currentX: originX,
           destinationX: 0,
           isGhost: true,
+          zIndex: 100 - numberOfFolksAlreadyOnFloor,
         });
 
         return;
@@ -365,7 +376,13 @@ class PersonController extends PureComponent<Props, State> {
 
   render() {
     const { children, floorRef, elevatorRef } = this.props;
-    const { currentX, destinationX, armPokeTarget, isGhost } = this.state;
+    const {
+      currentX,
+      destinationX,
+      armPokeTarget,
+      isGhost,
+      zIndex,
+    } = this.state;
 
     const renderTarget = floorRef || elevatorRef;
 
@@ -376,7 +393,9 @@ class PersonController extends PureComponent<Props, State> {
     }
 
     return createPortal(
-      <PersonContainer style={{ transform: `translateX(${currentX}px)` }}>
+      <PersonContainer
+        style={{ zIndex, transform: `translateX(${currentX}px)` }}
+      >
         {children({
           isWalking,
           isGhost,
@@ -430,16 +449,25 @@ const mapStateToProps = (state, ownProps) => {
     return getPropsForInitialFloor(state, ownProps);
   }
 
-  if (typeof ownProps.elevatorId !== 'undefined') {
+  const isBoardingOrRidingElevator =
+    status === 'boarding-elevator' || status === 'riding-elevator';
+
+  if (isBoardingOrRidingElevator) {
     // Figure out which elevator they're boarding, so that we can work out which
     // elevator position they'll fill.
-    const numberOfFolksAlreadyOnElevator = getPeopleOnElevatorFactory(
-      ownProps.elevatorId
-    )(state).length;
+    const peopleOnElevator = getPeopleOnElevator(ownProps.elevatorId, state);
 
     return {
-      numberOfFolksAlreadyOnElevator,
+      numberOfFolksAlreadyOnElevator: peopleOnElevator.length,
     };
+  }
+
+  if (status === 'disembarking-elevator') {
+    const peopleOnFloor = getPeopleDisembarkedOnFloor(ownProps.floorId, state);
+
+    console.log('Count', peopleOnFloor.length);
+
+    return { numberOfFolksAlreadyOnFloor: peopleOnFloor.length };
   }
 
   return {};

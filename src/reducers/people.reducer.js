@@ -189,17 +189,26 @@ export const getPeopleArray = createSelector(
   people => Object.values(people)
 );
 
-// prettier-ignore
-export const getPeopleOnElevatorFactory = (elevatorId: number) => (
-  (state: ReduxState) => {
-    const peopleArray = getPeopleArray(state);
+export const getPeopleOnElevator = (elevatorId: number, state: ReduxState) => {
+  const peopleArray = getPeopleArray(state);
 
-    return peopleArray.filter(
-      person =>
-        person.status === 'riding-elevator' && person.elevatorId === elevatorId
-    );
-  }
-);
+  return peopleArray.filter(
+    person =>
+      person.status === 'riding-elevator' && person.elevatorId === elevatorId
+  );
+};
+
+export const getPeopleDisembarkedOnFloor = (
+  floorId: number,
+  state: ReduxState
+) => {
+  const peopleArray = getPeopleArray(state);
+
+  return peopleArray.filter(
+    person =>
+      person.status === 'disembarking-elevator' && person.floorId === floorId
+  );
+};
 
 export const getPeopleExitingElevatorFactory = (
   elevatorId: number,
