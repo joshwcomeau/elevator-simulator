@@ -15,7 +15,7 @@ import {
 import type { Action, PersonShape, ReduxState } from '../types';
 
 //////////
-type BasePersonAttributes = {
+export type BasePersonAttributes = {
   id: string,
   firstName: string,
   lastName: string,
