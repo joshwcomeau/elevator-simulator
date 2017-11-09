@@ -106,6 +106,9 @@ export function setTimeoutPromise(duration) {
   return new Promise(resolve => window.setTimeout(resolve, duration));
 }
 
+export const delayPromise = length =>
+  new Promise(resolve => window.setTimeout(resolve, length));
+
 /**
  * Simple helper that uses the pythagorean theorem to calculate line length.
  */

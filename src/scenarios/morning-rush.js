@@ -1,7 +1,8 @@
 // @flow
+import { delayPromise as delay } from '../utils';
 import type { BasePersonAttributes } from '../reducers/people.reducer';
-const delay = length =>
-  new Promise(resolve => window.setTimeout(resolve, length));
+
+import { getRandomPersonAttrbutes } from '../components/Person/Person.helpers';
 
 type GeneratePerson = (person: BasePersonAttributes) => void;
 
@@ -11,14 +12,33 @@ export default {
   goals: {
     averageTotalTime: 20000,
   },
-  events: async (generatePerson: GeneratePerson) => {
+  run: async (generatePerson: GeneratePerson) => {
     await delay(500);
-    console.log('boop');
+    generatePerson({
+      ...getRandomPersonAttrbutes(),
+      floorId: 2,
+      destinationFloorId: 4,
+    });
+
     await delay(500);
-    console.log('beep');
+    generatePerson({
+      ...getRandomPersonAttrbutes(),
+      floorId: 2,
+      destinationFloorId: 3,
+    });
+
     await delay(500);
-    console.log('boop');
+    generatePerson({
+      ...getRandomPersonAttrbutes(),
+      floorId: 2,
+      destinationFloorId: 8,
+    });
+
     await delay(500);
-    console.log('beep');
+    generatePerson({
+      ...getRandomPersonAttrbutes(),
+      floorId: 2,
+      destinationFloorId: 5,
+    });
   },
 };

@@ -98,8 +98,15 @@ export default function reducer(state: ElevatorsState = [], action: Action) {
       return update(state, {
         [action.elevatorId]: {
           requestedFloorIds: {
-            $apply: floorIds =>
-              mergeUnique(floorIds, [action.destinationFloorId]),
+            $apply: floorIds => {
+              const uniqueIds = mergeUnique(floorIds, [
+                action.destinationFloorId,
+              ]);
+
+              // TODO: handle "bad actors" who request a direction, but then
+              // select a floor in the opposite direction
+              return uniqueIds.sort((a, b) => a - b);
+            },
           },
         },
       });

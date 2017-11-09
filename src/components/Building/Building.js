@@ -4,10 +4,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { initializeBuilding, newPersonEntersBuilding } from '../../actions';
+import { initializeBuilding } from '../../actions';
 import { ELEVATORS_ZINDEX, FLOORS_ZINDEX } from '../../constants';
 import { getPeopleArray } from '../../reducers/people.reducer';
-import { getRandomPersonAttrbutes } from '../Person/Person.helpers';
 
 import Elevator from '../Elevator';
 import Floor from '../Floor';
@@ -26,7 +25,6 @@ type Props = {
   elevators: ElevatorsState,
   people: Array<PersonData>,
   initializeBuilding: ActionCreator,
-  newPersonEntersBuilding: ActionCreator,
 };
 
 class Building extends PureComponent<Props> {
@@ -40,66 +38,9 @@ class Building extends PureComponent<Props> {
   buttonRefs: Array<HTMLElement> = [];
 
   componentDidMount() {
-    const {
-      numFloors,
-      numElevators,
-      initializeBuilding,
-      newPersonEntersBuilding,
-    } = this.props;
+    const { numFloors, numElevators, initializeBuilding } = this.props;
 
     initializeBuilding({ numFloors, numElevators });
-
-    // We've rendered a buncha floors and elevators, and captured their refs.
-    // We need to know the X offset for each elevator shaft,
-    window.setTimeout(
-      () =>
-        newPersonEntersBuilding({
-          ...getRandomPersonAttrbutes(),
-          floorId: 2,
-          destinationFloorId: 1,
-        }),
-      500
-    );
-
-    window.setTimeout(
-      () =>
-        newPersonEntersBuilding({
-          ...getRandomPersonAttrbutes(),
-          floorId: 2,
-          destinationFloorId: 1,
-        }),
-      1000
-    );
-
-    window.setTimeout(
-      () =>
-        newPersonEntersBuilding({
-          ...getRandomPersonAttrbutes(),
-          floorId: 2,
-          destinationFloorId: 1,
-        }),
-      1400
-    );
-
-    window.setTimeout(
-      () =>
-        newPersonEntersBuilding({
-          ...getRandomPersonAttrbutes(),
-          floorId: 2,
-          destinationFloorId: 1,
-        }),
-      1800
-    );
-
-    window.setTimeout(
-      () =>
-        newPersonEntersBuilding({
-          ...getRandomPersonAttrbutes(),
-          floorId: 2,
-          destinationFloorId: 1,
-        }),
-      4100
-    );
   }
 
   renderPerson = (person: any) => {
@@ -191,6 +132,6 @@ const mapStateToProps = state => ({
   people: getPeopleArray(state),
 });
 
-const mapDispatchToProps = { initializeBuilding, newPersonEntersBuilding };
+const mapDispatchToProps = { initializeBuilding };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Building);
