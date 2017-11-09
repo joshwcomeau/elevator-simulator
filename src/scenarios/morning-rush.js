@@ -16,29 +16,36 @@ export default {
     await delay(500);
     generatePerson({
       ...getRandomPersonAttrbutes(),
-      floorId: 2,
+      floorId: 0,
       destinationFloorId: 4,
     });
 
     await delay(500);
     generatePerson({
       ...getRandomPersonAttrbutes(),
-      floorId: 2,
+      floorId: 0,
       destinationFloorId: 3,
     });
 
     await delay(500);
     generatePerson({
       ...getRandomPersonAttrbutes(),
-      floorId: 2,
+      floorId: 0,
       destinationFloorId: 8,
     });
 
     await delay(500);
     generatePerson({
       ...getRandomPersonAttrbutes(),
-      floorId: 2,
+      floorId: 0,
       destinationFloorId: 5,
+    });
+
+    await delay(500);
+    generatePerson({
+      ...getRandomPersonAttrbutes(),
+      floorId: 5,
+      destinationFloorId: 0,
     });
   },
 };

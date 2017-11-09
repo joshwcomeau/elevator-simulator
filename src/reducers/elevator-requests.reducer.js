@@ -110,6 +110,12 @@ export const getElevatorRequestsArray = createSelector(
   elevatorRequests => Object.values(elevatorRequests)
 );
 
+export const getActiveElevatorRequestsArray = createSelector(
+  getElevatorRequestsArray,
+  elevatorRequestsArray =>
+    elevatorRequestsArray.filter(request => !request.resolvedAt)
+);
+
 export const getElevatorRequestsByFloor = (
   floorId: number,
   state: ReduxState

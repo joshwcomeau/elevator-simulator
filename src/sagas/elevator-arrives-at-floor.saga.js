@@ -12,16 +12,41 @@ import {
   moveElevator,
   exitFromElevator,
   awaitFurtherInstruction,
+  dispatchElevator,
 } from '../actions';
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
 import { sortByDescending } from '../utils';
 import { getPeopleExitingElevatorFactory } from '../reducers/people.reducer';
+import { getActiveElevatorRequestsArray } from '../reducers/elevator-requests.reducer';
 
-function* elevatorDutiesFulfilled() {
+function* elevatorDutiesFulfilled(elevator) {
   // TODO: This is one of those things that ought to be tweakable with knobs.
   // Fetch customizations from state and use it to figure out what to do.
 
-  yield put(awaitFurtherInstruction({ elevatorId: 0 }));
+  // Find any unfulfilled requests
+  const requests = yield select(getActiveElevatorRequestsArray);
+
+  // If there are none, our work is done. Let's set the elevator to 'idle'
+  // and wait for someone to request it.
+  if (requests.length === 0) {
+    yield put(awaitFurtherInstruction({ elevatorId: 0 }));
+    return;
+  }
+
+  // Get the one closest to this elevator, in either direction
+  const [closestRequest] = requests.sort(
+    (a, b) =>
+      Math.abs(elevator.floorId - a.floorId) -
+      Math.abs(elevator.floorId - b.floorId)
+  );
+
+  yield put(
+    dispatchElevator({
+      elevatorId: elevator.id,
+      floorId: closestRequest.floorId,
+      elevatorRequestId: closestRequest.id,
+    })
+  );
 }
 
 // Main Saga handler
@@ -116,7 +141,7 @@ function* handleElevatorArrivesAtFloor(action) {
   );
 
   if (requestedFloorIds.length === 0) {
-    yield elevatorDutiesFulfilled();
+    yield elevatorDutiesFulfilled(elevator);
     return;
   }
 
