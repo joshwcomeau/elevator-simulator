@@ -91,8 +91,9 @@ class Building extends PureComponent<Props> {
               refCapturer={elem => {
                 this.floorRefs[floor.id] = elem;
               }}
-              elevatorButtonsRefCapturer={elem =>
-                (this.buttonRefs[floor.id] = elem)}
+              elevatorButtonsRefCapturer={elem => {
+                this.buttonRefs[floor.id] = elem;
+              }}
             />
           ))}
         </Floors>

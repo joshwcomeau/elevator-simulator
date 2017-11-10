@@ -101,7 +101,7 @@ export const elevatorArrivesAtFloor = (args: ElevatorArrivesAtFloor) => ({
   ...args,
 });
 
-type OpenElevatorDoors = { elevatorId: number };
+type OpenElevatorDoors = { elevatorId: number, elevatorRequestId: string };
 export const openElevatorDoors = (args: OpenElevatorDoors) => ({
   type: OPEN_ELEVATOR_DOORS,
   ...args,
@@ -137,7 +137,6 @@ export const enterElevator = (args: EnterElevator) => ({
 type FulfillElevatorRequest = {
   elevatorId: number,
   elevatorRequestId: string,
-  resolvedAt: Date,
 };
 export const fulfillElevatorRequest = (args: FulfillElevatorRequest) => ({
   type: FULFILL_ELEVATOR_REQUEST,

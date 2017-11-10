@@ -17,14 +17,14 @@ import {
 import { ELEVATOR_DOOR_TRANSITION_LENGTH } from '../constants';
 import { sortByDescending } from '../utils';
 import { getPeopleExitingElevatorFactory } from '../reducers/people.reducer';
-import { getActiveElevatorRequestsArray } from '../reducers/elevator-requests.reducer';
+import { getElevatorRequestsArray } from '../reducers/elevator-requests.reducer';
 
 function* elevatorDutiesFulfilled(elevator) {
   // TODO: This is one of those things that ought to be tweakable with knobs.
   // Fetch customizations from state and use it to figure out what to do.
 
   // Find any unfulfilled requests
-  const requests = yield select(getActiveElevatorRequestsArray);
+  const requests = yield select(getElevatorRequestsArray);
 
   // If there are none, our work is done. Let's set the elevator to 'idle'
   // and wait for someone to request it.
@@ -57,23 +57,11 @@ function* handleElevatorArrivesAtFloor(action) {
   const { elevatorRequestId } = elevator;
 
   // Start by opening the elevator doors.
-  yield put(openElevatorDoors({ elevatorId }));
-  // Originally, I was waiting until the doors were 100% open before moving on,
-  // but this was unrealistic and felt robotic. Now they start moving almost
-  // immediately after the doors start to open.
-  yield delay(ELEVATOR_DOOR_TRANSITION_LENGTH / 4);
-
-  if (elevatorRequestId) {
-    // At this point, the request is considered "fulfilled"; the elevator has
-    // arrived at the requested floor, and the doors have opened.
-    yield put(
-      fulfillElevatorRequest({
-        elevatorId,
-        elevatorRequestId,
-        resolvedAt: new Date(),
-      })
-    );
-  }
+  console.log(
+    'OPENING DOORS',
+    openElevatorDoors({ elevatorId, elevatorRequestId })
+  );
+  yield put(openElevatorDoors({ elevatorId, elevatorRequestId }));
 
   // We know that our elevator will have just switched from 'en-route', to
   // fulfill an elevator request, or drop off some passengers, or both.
@@ -83,6 +71,16 @@ function* handleElevatorArrivesAtFloor(action) {
   // DON'T TRY PUSHING THROUGH THEM.
   const peopleDisembarking = yield select(
     getPeopleExitingElevatorFactory(elevatorId, floorId)
+  );
+
+  // If folks are getting off, wait until the doors are mostly opened.
+  // Otherwise,
+  const anyoneGettingOff = peopleDisembarking.length > 0;
+
+  yield delay(
+    anyoneGettingOff
+      ? ELEVATOR_DOOR_TRANSITION_LENGTH * 0.75
+      : ELEVATOR_DOOR_TRANSITION_LENGTH * 0.25
   );
 
   // People should exit in the reverse order that they entered.
@@ -107,9 +105,9 @@ function* handleElevatorArrivesAtFloor(action) {
   //
   // Next, check if this elevator is fulfilling a request.
   // If so, board the folks waiting.
-  if (elevator.elevatorRequestId) {
+  if (elevatorRequestId) {
     const elevatorRequest = yield select(
-      state => state.elevatorRequests[elevator.elevatorRequestId]
+      state => state.elevatorRequests[elevatorRequestId]
     );
 
     const { peopleIds } = elevatorRequest;
@@ -123,11 +121,24 @@ function* handleElevatorArrivesAtFloor(action) {
 
     // We want to wait until the final person has finished boarding the
     // elevator. Thankfully, we know how many folks we're waiting for!
+    // TODO: This solution doesn't work for folks joining the group mid-board.
+    // Rewrite to `select` the state on each loop and see if anyone new is
+    // trying to get on.
     let peopleRemaining = peopleIds.length;
     while (peopleRemaining) {
       yield take(ENTER_ELEVATOR);
       peopleRemaining--;
     }
+
+    // At this point, the request is considered "fulfilled";
+    // All passengers have boarded it, and it's ready to go.
+    // Let's delete the elevator request.
+    yield put(
+      fulfillElevatorRequest({
+        elevatorId,
+        elevatorRequestId,
+      })
+    );
   }
 
   // Close the doors, let's get this show on the road!

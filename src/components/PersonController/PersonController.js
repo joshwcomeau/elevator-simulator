@@ -375,7 +375,12 @@ class PersonController extends PureComponent<Props, State> {
     const direction: ElevatorDirection =
       destinationFloorId > floorId ? 'up' : 'down';
 
-    requestElevator({ floorId, personId: this.props.id, direction });
+    requestElevator({
+      floorId,
+      personId: this.props.id,
+      direction,
+      requestedAt: new Date(),
+    });
   };
 
   render() {

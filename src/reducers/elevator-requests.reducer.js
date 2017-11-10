@@ -6,17 +6,22 @@ import {
   REQUEST_ELEVATOR,
   JOIN_GROUP_WAITING_FOR_ELEVATOR,
   FULFILL_ELEVATOR_REQUEST,
+  OPEN_ELEVATOR_DOORS,
 } from '../actions';
 
-import type { ReduxState, Action, ElevatorDirection } from '../types';
+import type {
+  ReduxState,
+  Action,
+  ElevatorDirection,
+  ElevatorRequestStatus,
+} from '../types';
 
 export type ElevatorRequest = {
   id: string,
   floorId: number,
   peopleIds: Array<number>,
   direction: ElevatorDirection,
-  requestedAt: Date,
-  resolvedAt?: Date,
+  status: ElevatorRequestStatus,
 };
 
 export type ElevatorRequestsState = {
@@ -47,7 +52,7 @@ export default function reducer(
             floorId: action.floorId,
             peopleIds: [action.personId],
             direction: action.direction,
-            requestedAt: action.requestedAt,
+            status: 'awaiting-fulfillment',
           },
         },
       });
@@ -59,7 +64,7 @@ export default function reducer(
         id =>
           state[id].floorId === action.floorId &&
           state[id].direction === action.direction &&
-          !state[id].resolvedAt
+          state[id].status !== 'resolved'
       );
 
       const request = state[requestId || ''];
@@ -82,18 +87,24 @@ export default function reducer(
       });
     }
 
-    case FULFILL_ELEVATOR_REQUEST: {
-      // There may be a request for the elevator at this floor.
-      // If so, mark it as resolved.
-      //
-      // TODO: It's probably bad that we let these requests pile up to infinity.
-      // The only thing we care about is the delta between request and resolve.
-      // Should have a saga that does this precalculation, and maybe a different
-      // reducer, all about 'efficiency metrics', can store it?
+    case OPEN_ELEVATOR_DOORS: {
+      // When an elevator's doors open, it may be because it's fulfilling a
+      // request. We want to set the status to `boarding`, but only if there IS
+      // a corresponding request; it may just be delivering passengers.
+      if (!action.elevatorRequestId) {
+        return state;
+      }
+
       return update(state, {
         [action.elevatorRequestId]: {
-          resolvedAt: { $set: action.resolvedAt },
+          status: { $set: 'boarding' },
         },
+      });
+    }
+
+    case FULFILL_ELEVATOR_REQUEST: {
+      return update(state, {
+        $unset: [action.elevatorRequestId],
       });
     }
 
@@ -110,12 +121,6 @@ export const getElevatorRequestsArray = createSelector(
   elevatorRequests => Object.values(elevatorRequests)
 );
 
-export const getActiveElevatorRequestsArray = createSelector(
-  getElevatorRequestsArray,
-  elevatorRequestsArray =>
-    elevatorRequestsArray.filter(request => !request.resolvedAt)
-);
-
 export const getElevatorRequestsByFloor = (
   floorId: number,
   state: ReduxState
@@ -123,13 +128,4 @@ export const getElevatorRequestsByFloor = (
   const requestsArray = getElevatorRequestsArray(state);
 
   return requestsArray.filter(request => floorId === request.floorId);
-};
-
-export const getActiveElevatorRequestsByFloor = (
-  floorId: number,
-  state: ReduxState
-) => {
-  return getElevatorRequestsByFloor(floorId, state).filter(
-    request => !request.resolvedAt
-  );
 };

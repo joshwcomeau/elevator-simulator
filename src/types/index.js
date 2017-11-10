@@ -25,6 +25,8 @@ export type PersonStatus =
   | 'riding-elevator'
   | 'disembarking-elevator';
 
+export type ElevatorRequestStatus = 'awaiting-fulfillment' | 'boarding';
+
 //
 /**
  * Miscellaneous types

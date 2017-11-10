@@ -3,8 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { COLORS } from '../../constants';
-import { getActiveElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
+import { getElevatorRequestsByFloor } from '../../reducers/elevator-requests.reducer';
 
 import ElevatorButton from '../ElevatorButton';
 
@@ -66,11 +65,9 @@ const ElevatorButtonsPlate = styled.div`
 `;
 
 const mapStateToProps = (state, { floorId }) => {
-  const { floors, elevatorRequests } = state;
+  const { floors } = state;
 
-  const floor = floors[floorId];
-
-  const requestsForThisFloor = getActiveElevatorRequestsByFloor(floorId, state);
+  const requestsForThisFloor = getElevatorRequestsByFloor(floorId, state);
 
   const isBottomFloor = floorId === 0;
   const isTopFloor = floorId === floors.length - 1;
